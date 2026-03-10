@@ -555,6 +555,7 @@ tr:hover td{background:var(--ds2);}
       <div class="nav-sec ao">Management</div>
       <div class="nav-item ao" data-page="volunteers" onclick="nav(this)"><span class="ni">👥</span> User Management</div>
       <div class="nav-item ao" data-page="events" onclick="nav(this)"><span class="ni">🕌</span> Majalis Dates</div>
+      <div class="nav-item ao" data-page="audit" onclick="nav(this)"><span class="ni">🔍</span> Audit Logs</div>
     </nav>
     <div class="sb-bot">
       <div class="uchip">
@@ -746,6 +747,36 @@ tr:hover td{background:var(--ds2);}
 
     </div>
 
+
+    <!-- AUDIT LOGS -->
+    <div class="page ao" id="page-audit">
+      <div class="ph">
+        <div><h1>Audit Logs</h1><p>Track all changes made by users</p></div>
+        <div class="ha">
+          <button class="btn btn-ol btn-sm" onclick="clearAuditDisplay()">Clear View</button>
+          <button class="btn btn-da btn-sm" onclick="confirmClearAllLogs()">🗑 Clear All Logs</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+        <input id="auditSearch" type="text" placeholder="Search logs…" class="wi" style="max-width:260px;" oninput="renderAuditLogs()">
+        <select id="auditFilter" class="ws" style="width:auto;min-width:160px;" onchange="renderAuditLogs()">
+          <option value="">All Actions</option>
+          <option value="volunteer">Volunteers</option>
+          <option value="majalis">Majalis</option>
+          <option value="training">Training</option>
+          <option value="roster">Roster</option>
+          <option value="login">Login</option>
+        </select>
+      </div>
+      <div class="tw">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--db);display:flex;align-items:center;justify-content:space-between;">
+          <h3 style="font-family:'Barlow',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;">Activity Log</h3>
+          <span id="auditCount" style="font-size:11px;color:var(--dm);"></span>
+        </div>
+        <div id="auditList" style="max-height:600px;overflow-y:auto;"></div>
+      </div>
+    </div>
+
     <!-- AI AUTO-ROSTER -->
   </main>
 </div>
@@ -871,10 +902,29 @@ async function dbSaveMajalis(mj){
   if(!sb) return;
   setSyncStatus('saving');
   try{
-    const {error} = await sb.from('majalis').upsert({id:mj.id, date:mj.date||'', name:mj.name||'', type:mj.type||'', time:mj.time||'', data:mj});
+    const payload = {
+      id:       Number(mj.id),
+      date:     mj.date     || '',
+      name:     mj.name     || '',
+      type:     mj.type     || 'Majalis',
+      time:     mj.time     || '',
+      data:     {...mj, category: mj.category||''}
+    };
+    console.log('Saving majalis:', payload);
+    const {data, error} = await sb.from('majalis').upsert(payload).select();
     if(error) throw error;
+    // Update the local id with whatever Supabase assigned (in case of serial PK)
+    if(data && data[0] && data[0].id !== mj.id){
+      const idx = majalisEvs.findIndex(e=>e.id===mj.id);
+      if(idx>=0) majalisEvs[idx].id = data[0].id;
+    }
+    console.log('Majalis saved OK:', data);
     setSyncStatus('ok');
-  }catch(e){ console.error(e); setSyncStatus('error'); }
+  }catch(e){
+    console.error('dbSaveMajalis error:', e);
+    setSyncStatus('error');
+    throw e;
+  }
 }
 
 async function dbDeleteMajalis(id){
@@ -891,10 +941,19 @@ async function dbSaveTraining(tr){
   if(!sb) return;
   setSyncStatus('saving');
   try{
-    const {error} = await sb.from('majalis').upsert({id:tr.id, date:tr.date, name:tr.name, type:tr.type, time:tr.time, data:tr});
+    const payload = {
+      id:   Number(tr.id),
+      date: tr.date || '',
+      name: tr.trainee || tr.name || '',
+      type: tr.type || 'Training',
+      time: tr.time || '',
+      data: {...tr, category:'training'}
+    };
+    console.log('Saving training:', payload);
+    const {error} = await sb.from('majalis').upsert(payload);
     if(error) throw error;
     setSyncStatus('ok');
-  }catch(e){ console.error(e); setSyncStatus('error'); }
+  }catch(e){ console.error('dbSaveTraining error:', e); setSyncStatus('error'); }
 }
 
 async function dbDeleteTraining(id){
@@ -945,7 +1004,7 @@ const USERS = {
   'arshiyaan.charolia': { pw: 'AVTM238', role: 'admin', display: 'Arshiyaan Charolia' },
   'irfan.jalia':        { pw: 'IVD',     role: 'admin', display: 'Irfan Jalia'        },
   'shazad.saleem':      { pw: 'IVDD',    role: 'admin', display: 'Shazad Saleem'      },
-  'testing123':      { pw: 'bismillah1',    role: 'volunteer', display: 'Test Account'      },
+  'testing786':         { pw: 'bismillah1', role: 'volunteer', display: 'Test Account' },
 };
 
 function doLogin(){
@@ -956,7 +1015,7 @@ function doLogin(){
     window.CU = { user: u, role: USERS[u].role, display: USERS[u].display };
     sessionStorage.setItem('jk_session', JSON.stringify(window.CU));
     applySession();
-    loadFromDB().then(()=>{ autoRoster(); renderAll(); });
+    loadFromDB().then(()=>{ autoRoster(); renderAll(); loadAuditLogs(); auditLog('Signed in', 'login', `Logged in as ${USERS[u].display}`); });
   } else {
     err.textContent = 'Incorrect username or password.';
     document.getElementById('lp').value = '';
@@ -984,12 +1043,13 @@ document.addEventListener('DOMContentLoaded', () => {
     try{
       window.CU = JSON.parse(saved);
       applySession();
-      loadFromDB().then(()=>{ autoRoster(); renderAll(); });
+      loadFromDB().then(()=>{ autoRoster(); renderAll(); loadAuditLogs(); auditLog('Signed in', 'login', `Logged in as ${USERS[u].display}`); });
     } catch(e){ sessionStorage.removeItem('jk_session'); }
   }
 });
 
 function logout(){
+  auditLog('Signed out', 'logout', `Session ended`);
   window.CU = null;
   sessionStorage.removeItem('jk_session');
   sessionStorage.removeItem('jk_calMo');
@@ -1292,6 +1352,7 @@ function addRole(id,role){
   if(!v.roles.includes(role)){
     v.roles.push(role);
     syncVolType(v);
+    auditLog(`Added role '${role}' to ${v.name}`, 'volunteer', `Volunteer: ${v.name}`);
     renderVolCards();autoRoster();dbSaveVol(v);
   }
 }
@@ -1302,6 +1363,7 @@ function removeRole(id,role,e){
   if(!Array.isArray(v.roles))v.roles=[];
   v.roles=v.roles.filter(r=>r!==role);
   syncVolType(v);
+  auditLog(`Removed role '${role}' from ${v.name}`, 'volunteer', `Volunteer: ${v.name}`);
   renderVolCards();autoRoster();dbSaveVol(v);
 }
 
@@ -1352,15 +1414,18 @@ function addVol(){
   renderVolCards();updateStats();
   autoRoster();
   dbSaveVol(newVol);
+  auditLog(`Added volunteer: ${n}`, 'volunteer', `Name: ${n}`);
   toast('Volunteer added — roster updated!');
 }
 
 function rmVol(id){
+  const rv=vols.find(v=>v.id===id);
   vols=vols.filter(v=>v.id!==id);
   renderVolCards();updateStats();
   autoRoster();
   dbDeleteVol(id);
   dbSaveRoster();
+  auditLog(`Removed volunteer: ${rv?rv.name:id}`, 'volunteer', `ID: ${id}`);
   toast('Removed — roster updated.');
 }
 
@@ -1524,19 +1589,21 @@ function addMajalis(){
   const date=document.getElementById('mjDate').value;
   if(!name){toast('Enter a Majalis name','err');return;}
   if(!date){toast('Select a date','err');return;}
-  const newMj={id:Date.now(),name,type:'Majalis',date,time:''};
+  const newMj={id:Date.now(),name,type:'Majalis',date,time:'',category:''};
   majalisEvs.push(newMj);
   document.getElementById('mjName').value='';
   document.getElementById('mjDate').value='';
   renderMajalisCards();renderUpcoming();updateStats();autoRoster();
-  dbSaveMajalis(newMj);
-  toast('Majalis added!');
+  auditLog(`Added Majalis: ${name}`, 'majalis', `Date: ${date}`);
+  dbSaveMajalis(newMj).then(()=>toast('Majalis saved!')).catch(()=>toast('Save failed — check connection','err'));
 }
 
 function delMajalis(id){
+  const dm=majalisEvs.find(e=>e.id===id);
   majalisEvs=majalisEvs.filter(e=>e.id!==id);
   renderMajalisCards();renderUpcoming();updateStats();autoRoster();
   dbDeleteMajalis(id);
+  auditLog(`Deleted Majalis: ${dm?dm.name:id}`, 'majalis', `Date: ${dm?dm.date:''}`);
   toast('Removed.');
 }
 
@@ -1585,13 +1652,16 @@ function addTraining(){
   document.getElementById('trDate').value='';
   renderTrainingCards();autoRoster();
   dbSaveTraining(newTr);
+  auditLog(`Added Training Day: ${trainee} with ${trainer}`, 'training', `Date: ${date}`);
   toast('Training day added!');
 }
 
 function delTraining(id){
+  const dt2=trainings.find(e=>e.id===id);
   trainings=trainings.filter(e=>e.id!==id);
   renderTrainingCards();autoRoster();
   dbDeleteTraining(id);
+  auditLog(`Deleted Training: ${dt2?dt2.trainee:id}`, 'training', `Date: ${dt2?dt2.date:''}`);
   toast('Training removed.');
 }
 
@@ -1722,6 +1792,138 @@ async function downloadRosterPNG(){
     btn.disabled  = false;
   }
 }
+
+/* ═══════════════════════════════════
+   AUDIT LOGS
+═══════════════════════════════════ */
+let auditLogs = [];
+
+const AUDIT_ICONS = {
+  login:     '🔐',
+  logout:    '🚪',
+  volunteer: '👤',
+  majalis:   '🕌',
+  training:  '🎓',
+  roster:    '📅',
+};
+
+function auditLog(action, category, detail){
+  if(!window.CU) return;
+  const entry = {
+    id:        Date.now() + Math.random(),
+    ts:        new Date().toISOString(),
+    user:      CU.display,
+    username:  CU.user,
+    action,
+    category,
+    detail,
+  };
+  auditLogs.unshift(entry);
+  if(auditLogs.length > 500) auditLogs = auditLogs.slice(0, 500);
+  dbSaveAuditLog(entry);
+  // Re-render if audit page is active
+  if(document.getElementById('page-audit').classList.contains('active')) renderAuditLogs();
+}
+
+async function dbSaveAuditLog(entry){
+  if(!sb) return;
+  try{
+    await sb.from('audit_logs').insert({
+      id: entry.id,
+      ts: entry.ts,
+      username: entry.username,
+      user_display: entry.user,
+      action: entry.action,
+      category: entry.category,
+      detail: entry.detail,
+      data: entry
+    });
+  } catch(e){ console.warn('Audit log save failed (table may not exist):', e.message); }
+}
+
+async function loadAuditLogs(){
+  if(!sb) return;
+  try{
+    const {data, error} = await sb.from('audit_logs').select('*').order('ts', {ascending: false}).limit(500);
+    if(error) throw error;
+    auditLogs = (data||[]).map(r => r.data || {
+      id: r.id, ts: r.ts, user: r.user_display, username: r.username,
+      action: r.action, category: r.category, detail: r.detail
+    });
+    renderAuditLogs();
+  } catch(e){ console.warn('Could not load audit logs:', e.message); }
+}
+
+function renderAuditLogs(){
+  const list = document.getElementById('auditList');
+  const count = document.getElementById('auditCount');
+  if(!list) return;
+
+  const search = (document.getElementById('auditSearch')?.value||'').toLowerCase();
+  const filter = document.getElementById('auditFilter')?.value||'';
+
+  let logs = auditLogs.filter(l => {
+    if(filter && l.category !== filter) return false;
+    if(search && !( (l.user||'').toLowerCase().includes(search) ||
+                    (l.action||'').toLowerCase().includes(search) ||
+                    (l.detail||'').toLowerCase().includes(search))) return false;
+    return true;
+  });
+
+  if(count) count.textContent = `${logs.length} entr${logs.length===1?'y':'ies'}`;
+
+  if(!logs.length){
+    list.innerHTML = `<div style="text-align:center;padding:32px;color:var(--dm);font-size:12px;opacity:.6;">No audit logs yet.</div>`;
+    return;
+  }
+
+  list.innerHTML = logs.map(l => {
+    const icon = AUDIT_ICONS[l.category] || '📋';
+    const dt = new Date(l.ts);
+    const dateStr = dt.toLocaleDateString('en-NZ',{day:'2-digit',month:'short',year:'numeric'});
+    const timeStr = dt.toLocaleTimeString('en-NZ',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    const catColours = {
+      login:     'rgba(79,195,247,0.15);color:#4FC3F7;border-color:rgba(79,195,247,0.3)',
+      logout:    'rgba(122,139,170,0.15);color:#7AAECB;border-color:rgba(122,139,170,0.3)',
+      volunteer: 'rgba(99,102,241,0.15);color:#A5B4FC;border-color:rgba(99,102,241,0.3)',
+      majalis:   'rgba(21,101,192,0.15);color:#90CAF9;border-color:rgba(21,101,192,0.3)',
+      training:  'rgba(245,158,11,0.15);color:#FCD34D;border-color:rgba(245,158,11,0.3)',
+      roster:    'rgba(16,185,129,0.15);color:#6EE7B7;border-color:rgba(16,185,129,0.3)',
+    };
+    const cc = catColours[l.category]||'rgba(122,139,170,0.15);color:#7AAECB;border-color:rgba(122,139,170,0.3)';
+    const initials = (l.user||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    return `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background .15s;" onmouseover="this.style.background='rgba(79,195,247,0.04)'" onmouseout="this.style.background=''">
+      <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0B3A6B,#1565C0);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;">${initials}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+          <span style="font-size:13px;font-weight:700;color:#E8F4FD;">${l.user||'Unknown'}</span>
+          <span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:${cc};text-transform:uppercase;letter-spacing:.07em;">${icon} ${l.category}</span>
+        </div>
+        <div style="font-size:12px;color:#7AAECB;margin-bottom:2px;">${l.action}</div>
+        ${l.detail ? `<div style="font-size:11px;color:#4A6A80;font-style:italic;">${l.detail}</div>` : ''}
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:11px;color:#4A6A80;">${dateStr}</div>
+        <div style="font-size:10px;color:#2A4A60;font-family:monospace;">${timeStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clearAuditDisplay(){
+  document.getElementById('auditSearch').value='';
+  document.getElementById('auditFilter').value='';
+  renderAuditLogs();
+}
+
+function confirmClearAllLogs(){
+  if(!confirm('Clear ALL audit logs permanently? This cannot be undone.')) return;
+  auditLogs = [];
+  if(sb) sb.from('audit_logs').delete().neq('id',0).then(()=>console.log('Audit logs cleared'));
+  renderAuditLogs();
+  toast('Audit logs cleared.');
+}
+
 </script>
 </body>
 </html>
