@@ -375,6 +375,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
 .wi{background:#fff;border:1px solid #c8d6e8;border-radius:7px;padding:9px 12px;color:#1a2a40;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;transition:border .18s;}
 .wi:focus{border-color:#1565C0;}
 .ws{background:#fff;border:1px solid #c8d6e8;border-radius:7px;padding:8px 10px;color:#1a2a40;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;cursor:pointer;width:100%;}
+/* Scrollable multi-row select (admin panel) */
+select[size]:not([size="1"]){
+  padding:4px 0;
+  border-radius:7px;
+  scrollbar-width:thin;
+}
+select[size]:not([size="1"]) option{
+  padding:6px 10px;
+  border-radius:4px;
+  cursor:pointer;
+}
+select[size]:not([size="1"]) option:checked{
+  background:rgba(79,195,247,0.2);
+  color:#4FC3F7;
+}
 .avlbl{font-size:9px;font-weight:700;color:var(--dm);letter-spacing:.08em;white-space:nowrap;text-transform:uppercase;}
 .day-tog{cursor:pointer;}
 .day-tog input{display:none;}
@@ -1111,6 +1126,11 @@ const MO=['January','February','March','April','May','June','July','August','Sep
 const MOS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 let vols=[], majalisEvs=[], trainings=[], roster={};
+function esc(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 
 /* ═══════════════════════════════════
    SUPABASE — cross-device sync
@@ -1155,7 +1175,7 @@ async function loadFromDB(){
     const rR = await sb.from('roster').select('*');
     if(rR.error) throw rR.error;
 
-    vols       = (vR.data||[]).map(r=>({...r.data, id:r.id}));
+    vols       = (vR.data||[]).map(r=>({...r.data, id:r.id, days:Array.isArray(r.data&&r.data.days)?r.data.days:[], roles:Array.isArray(r.data&&r.data.roles)?r.data.roles:[]}));
     majalisEvs = (mR.data||[]).map(r=>{
       const d = r.data||{};
       return {
@@ -1388,6 +1408,12 @@ function logout(){
   document.getElementById('lu').value = '';
   document.getElementById('lp').value = '';
   document.getElementById('loginErr').textContent = '';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const dash=document.getElementById('page-dashboard');
+  if(dash) dash.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const dashNav=document.querySelector('[data-page=dashboard]');
+  if(dashNav) dashNav.classList.add('active');
 }
 
 /* ═══════════════════════════════════
@@ -1743,7 +1769,7 @@ function renderVolCards(){
   const c=document.getElementById('volCards');if(!c)return;
   if(!vols.length){c.innerHTML=`<div style="text-align:center;padding:20px;color:var(--dm);font-size:12px;">No volunteers yet.</div>`;return;}
   c.innerHTML=vols.map(v=>{
-    const roles=Array.isArray(v.roles)&&v.roles.length?v.roles:(v.type?[v.type]:[]);
+    const roles=Array.isArray(v.roles)&&v.roles.length?v.roles:(v.type?[v.type]:['Team Member']);
     const topRole=roles[0]||'Team Member';
     return `
     <div class="vc" id="vc-${v.id}">
@@ -1759,7 +1785,7 @@ function renderVolCards(){
       </div>
       <div class="vc-body">
         <div class="ar" style="margin-top:0;"><label>Roles</label>${rolePills(v)}</div>
-        <div class="ar"><label>Weekly Availability</label><div class="dr">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(day=>`<label class="day-tog"><input type="checkbox" value="${day}"${v.days.includes(day)?' checked':''} onchange="uDays(${v.id})"><span>${day}</span></label>`).join('')}</div></div>
+        <div class="ar"><label>Weekly Availability</label><div class="dr">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(day=>`<label class="day-tog"><input type="checkbox" value="${day}"${(v.days||[]).includes(day)?' checked':''} onchange="uDays(${v.id})"><span>${day}</span></label>`).join('')}</div></div>
         <div class="ar" style="margin-top:10px;">
           <label>Busy Dates <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#4A6A80;font-size:9px;">(dates this person is unavailable)</span></label>
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
@@ -1824,7 +1850,7 @@ function uVol(id,f,v){
 function uDays(id){
   const card=document.getElementById('vc-'+id),v=vols.find(x=>x.id===id);
   if(v&&card){
-    v.days=[...card.querySelectorAll('.day-tog input:checked')].map(i=>i.value);
+    v.days=[...card.querySelectorAll('.day-tog input:checked')].map(i=>i.value)||[];
     auditLog(`Updated availability for ${v.name}`,'volunteer',`Days: ${v.days.join(', ')||'none'}`);
     autoRoster();
     dbSaveVol(v);
@@ -1901,7 +1927,7 @@ function autoRoster(){
   // Build pool per day-of-week
   const dayPool={};
   DAY_NAMES.forEach((d,i)=>{
-    dayPool[i]=active.filter(v=>v.days.includes(d));
+    dayPool[i]=active.filter(v=>(v.days||[]).includes(d));
   });
 
   // Rotation pointer per day-of-week (0–6) and mph
@@ -1921,7 +1947,7 @@ function autoRoster(){
     const avail=pool.filter(v=>{
       if(dow===5 && (v.mph || v.type==='MPH Certified Member')) return false; // MPH certified → Friday is MPH only
       if(!v.bds) return true;
-      const bList=v.bds.split(',').map(s=>s.trim());
+      const bList=(v.bds||'').split(',').map(s=>s.trim());
       return !bList.includes(ds);
     });
     if(!avail.length) continue;
@@ -1951,7 +1977,7 @@ function autoRoster(){
       const mphPool=active.filter(v=>v.mph&&v.days.includes('Fri'));
       if(mphPool.length){
         const avMph=mphPool.filter(v=>
-          !v.bds||!v.bds.split(',').map(s=>s.trim()).includes(ds)
+          !(v.bds||'').split(',').filter(Boolean).includes(ds)
         );
         if(avMph.length){
           const mphPick=avMph[ptr.mph%avMph.length];
@@ -2465,11 +2491,6 @@ function toast(msg, type='ok'){
 }
 
 
-function esc(s){
-  if(!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
 function fd(ds){
   if(!ds) return '—';
   const d=new Date(ds+'T12:00');
@@ -2562,7 +2583,18 @@ function apLoadDayFields(){
   mphSel.innerHTML = '<option value="">— Auto-assigned —</option>' +
     active.filter(v=>v.mph).map(v=>`<option value="${v.name}" ${ro._mph_primary===v.name?'selected':''}>${v.name}</option>`).join('');
 
-  // Notes summary
+  // Make dropdowns scrollable by capping visible rows
+  [jkSel, supSel, mphSel].forEach(sel => {
+    const opts = sel.options.length;
+    if(opts > 5){
+      sel.size = 5;
+      sel.style.height = 'auto';
+      sel.style.overflowY = 'auto';
+    } else {
+      sel.size = 1;
+      sel.style.height = '';
+    }
+  });
   const notes = document.getElementById('ap-edit-notes');
   const mj = majalisEvs.find(e=>e.date===ds);
   const tr = trainings.find(e=>e.date===ds);
@@ -2634,7 +2666,19 @@ function apAddMajalis(){
   auditLog(`Admin added Majalis: ${name}`, 'majalis', `Date: ${ds} via Admin Panel`);
   renderMajalisCards(); renderUpcoming(); updateStats(); autoRoster();
   apLoadDayFields();
-  toast(`Majalis "${name}" added to ${fd(ds)}`);
+  renderMajalisCards(); renderUpcoming(); updateStats(); autoRoster();
+  apLoadDayFields();
+  if(name.toLowerCase().includes('chandraat')){
+    var pbsD=new Date(ds+'T12:00'); pbsD.setDate(pbsD.getDate()+8);
+    var pbsDate=pbsD.toISOString().split('T')[0];
+    if(!majalisEvs.find(function(e){return e.date===pbsDate&&e.name==='Paanch Baar Saal';})){
+      var pbsMj={id:Date.now()+Math.floor(Math.random()*9000)+1000,name:'Paanch Baar Saal',type:'Majalis',date:pbsDate,time:'',category:''};
+      majalisEvs.push(pbsMj); dbSaveMajalis(pbsMj);
+      auditLog('Auto-added: Paanch Baar Saal','majalis','8 days after '+name);
+      renderMajalisCards(); renderUpcoming(); updateStats(); autoRoster();
+    }
+  }
+  toast('Majalis saved for '+fd(ds));
 }
 
 function apRemoveMajalis(id){
@@ -2748,7 +2792,7 @@ function nav(el){
   if(!el) return;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+el.dataset.page).classList.add('active');
+  const _pg=document.getElementById('page-'+el.dataset.page); if(_pg) _pg.classList.add('active'); else return;
   el.classList.add('active');
   if(el.dataset.page === 'audit') renderAuditLogs();
   if(el.dataset.page === 'adminpanel' && window.CU && CU.user === 'eshan.punjwani'){
