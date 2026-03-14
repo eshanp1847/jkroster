@@ -1761,6 +1761,18 @@ function addMajalis(){
   renderMajalisCards();renderUpcoming();updateStats();autoRoster();
   auditLog(`Added Majalis: ${name}`, 'majalis', `Date: ${date}`);
   dbSaveMajalis(newMj).then(()=>toast('Majalis saved!')).catch(()=>toast('Save failed — check connection','err'));
+
+  // Auto-add 'Paanch Baar Saal' 8 days after any Chandraat
+  if(name.toLowerCase().includes('chandraat')){
+    const d = new Date(date + 'T12:00');
+    d.setDate(d.getDate() + 8);
+    const pbsDate = d.toISOString().split('T')[0];
+    const pbsMj = {id:Date.now()+1, name:'Paanch Baar Saal', type:'Majalis', date:pbsDate, time:'', category:''};
+    majalisEvs.push(pbsMj);
+    renderMajalisCards();renderUpcoming();updateStats();autoRoster();
+    auditLog('Auto-added Majalis: Paanch Baar Saal', 'majalis', `Date: ${pbsDate} (8 days after ${name})`);
+    dbSaveMajalis(pbsMj).then(()=>toast('Chandraat detected — Paanch Baar Saal added 8 days later!')).catch(()=>toast('Paanch Baar Saal save failed','err'));
+  }
 }
 
 function delMajalis(id){
