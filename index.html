@@ -804,7 +804,19 @@ tr:hover td{background:var(--ds2);}
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
                 <div>
                   <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Majalis Name</div>
-                  <input type="text" id="mjName" placeholder="e.g. Chandraat, Imamat Day…" class="wi">
+                  <select id="mjNameSelect" class="ws" style="background:#0D2040;color:#E8F4FD;border:1px solid rgba(79,195,247,0.3);" onchange="handleMjSelect()">
+                    <option value="">— Select type —</option>
+                    <option value="Chandraat">Chandraat</option>
+                    <option value="Student">Student</option>
+                    <option value="Paanch Baar Saal">Paanch Baar Saal</option>
+                    <option value="Bait-ul Khayal">Bait-ul Khayal</option>
+                    <option value="Chandraat (K)">Chandraat (K)</option>
+                    <option value="Student (K)">Student (K)</option>
+                    <option value="Paanch Baar Saal (K)">Paanch Baar Saal (K)</option>
+                    <option value="Bait-ul Khayal (K)">Bait-ul Khayal (K)</option>
+                    <option value="__custom__">✏️ Type custom name…</option>
+                  </select>
+                  <input type="text" id="mjName" placeholder="Enter custom name…" class="wi" style="margin-top:6px;display:none;">
                 </div>
                 <div>
                   <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Majalis Date</div>
@@ -1720,6 +1732,24 @@ function autoRoster(){
 /* ═══════════════════════════════════
    MAJALIS EVENTS
 ═══════════════════════════════════ */
+// Maps majalis name → { abbr, isK }
+const MJ_ABBR = {
+  'Chandraat':           {abbr:'C',    isK:false},
+  'Student':             {abbr:'S',    isK:false},
+  'Paanch Baar Saal':    {abbr:'PBS',  isK:false},
+  'Bait-ul Khayal':      {abbr:'BK',   isK:false},
+  'Chandraat (K)':       {abbr:'C (K)',isK:true },
+  'Student (K)':         {abbr:'S (K)',isK:true },
+  'Paanch Baar Saal (K)':{abbr:'PBS (K)',isK:true},
+  'Bait-ul Khayal (K)':  {abbr:'BK (K)',isK:true},
+};
+
+function getMjBadge(name){
+  const cfg = MJ_ABBR[name];
+  if(!cfg) return null;
+  return cfg;
+}
+
 function renderMajalisCards(){
   const c=document.getElementById('majalisCards');if(!c)return;
   const s=[...majalisEvs].sort((a,b)=>a.date.localeCompare(b.date));
@@ -1730,18 +1760,26 @@ function renderMajalisCards(){
   c.innerHTML=s.map(e=>{
     const dt=new Date(e.date+'T12:00');
     const dow=dt.toLocaleDateString('en-NZ',{weekday:'long'});
-    const dStr=dt.toLocaleDateString('en-NZ',{day:'numeric',month:'long',year:'numeric'});
-    return `<div class="mj-list-card">
-      <div class="mj-list-date">
-        <div class="mj-list-mo">${MOS[dt.getMonth()]}</div>
-        <div class="mj-list-d">${String(dt.getDate()).padStart(2,'0')}</div>
-        <div class="mj-list-yr">${dt.getFullYear()}</div>
-      </div>
+    const badge=getMjBadge(e.name);
+    const circleStyle = badge
+      ? badge.isK
+        ? `background:linear-gradient(135deg,rgba(16,185,129,0.25),rgba(6,148,104,0.35));border:1.5px solid rgba(16,185,129,0.5);box-shadow:0 0 8px rgba(16,185,129,0.2),inset 0 0 6px rgba(16,185,129,0.1);color:#6EE7B7;`
+        : `background:linear-gradient(135deg,#0B2A5A,#1565C0);border:1.5px solid rgba(79,195,247,0.4);color:#fff;`
+      : `background:linear-gradient(135deg,#0B2A5A,#1565C0);border:1.5px solid rgba(79,195,247,0.4);color:#fff;`;
+    const circleContent = badge
+      ? `<div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:900;font-size:${badge.abbr.length>4?9:badge.abbr.length>2?11:14}px;flex-shrink:0;letter-spacing:-.3px;${circleStyle}">${badge.abbr}</div>`
+      : `<div class="mj-list-date" style="min-width:44px;padding:6px 8px;">
+          <div class="mj-list-mo">${MOS[dt.getMonth()]}</div>
+          <div class="mj-list-d">${String(dt.getDate()).padStart(2,'0')}</div>
+          <div class="mj-list-yr">${dt.getFullYear()}</div>
+        </div>`;
+
+    return `<div class="mj-list-card" style="${badge?.isK?'border-color:rgba(16,185,129,0.3);background:linear-gradient(135deg,rgba(6,78,59,0.15),rgba(4,20,14,0.3));':''}">
+      ${circleContent}
       <div class="mj-list-body">
-        <div class="mj-list-name">${e.name}</div>
+        <div class="mj-list-name" style="${badge?.isK?'color:#6EE7B7;':''}">${e.name}</div>
         <div class="mj-list-meta">
-          <span class="mj-type-tag">${e.type}</span>
-          <span style="color:var(--dm);font-size:11px;">⏰ ${e.time} · ${dow}</span>
+          <span style="font-size:10px;color:var(--dm);">${fd(e.date)} · ${dow}</span>
         </div>
       </div>
       <button class="ev-del" onclick="delMajalis(${e.id})" title="Remove">🗑</button>
@@ -1749,15 +1787,31 @@ function renderMajalisCards(){
   }).join('');
 }
 
+function handleMjSelect(){
+  const sel=document.getElementById('mjNameSelect');
+  const customInput=document.getElementById('mjName');
+  if(sel.value==='__custom__'){
+    customInput.style.display='block';
+    customInput.focus();
+  } else {
+    customInput.style.display='none';
+    customInput.value='';
+  }
+}
+
 function addMajalis(){
-  const name=document.getElementById('mjName').value.trim();
+  const sel=document.getElementById('mjNameSelect');
+  const customInput=document.getElementById('mjName');
+  const name=(sel.value==='__custom__'||sel.value==='')?customInput.value.trim():sel.value;
   const date=document.getElementById('mjDate').value;
-  if(!name){toast('Enter a Majalis name','err');return;}
+  if(!name){toast('Select or enter a Majalis name','err');return;}
   if(!date){toast('Select a date','err');return;}
   const newMj={id:Date.now(),name,type:'Majalis',date,time:'',category:''};
   majalisEvs.push(newMj);
   document.getElementById('mjName').value='';
+  document.getElementById('mjName').style.display='none';
   document.getElementById('mjDate').value='';
+  document.getElementById('mjNameSelect').value='';
   renderMajalisCards();renderUpcoming();updateStats();autoRoster();
   auditLog(`Added Majalis: ${name}`, 'majalis', `Date: ${date}`);
   dbSaveMajalis(newMj).then(()=>toast('Majalis saved!')).catch(()=>toast('Save failed — check connection','err'));
@@ -2220,5 +2274,6 @@ document.querySelectorAll('.nav-item').forEach(n=>{
 </script>
 </body>
 </html>
+
 
 
