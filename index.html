@@ -166,7 +166,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
   background:linear-gradient(180deg,#0C1E3A 0%,#091528 100%);
   padding:10px 8px;text-align:center;
   font-family:'Barlow',sans-serif;font-size:10px;font-weight:800;
-  text-transform:uppercase;letter-spacing:.16em;color:#5A8FAF;
+  text-transform:uppercase;letter-spacing:.16em;color:#6A9FBF;
   border-right:1px solid rgba(79,195,247,0.06);
   border-bottom:2px solid rgba(79,195,247,0.12);
 }
@@ -187,31 +187,39 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
 }
 .cell::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(79,195,247,0.03) 0%,transparent 60%);
+  background:linear-gradient(180deg,rgba(79,195,247,0.025) 0%,transparent 55%);
   pointer-events:none;
 }
 .cell:last-child,.cell:nth-child(7n){border-right:none;}
-.cell:hover{background:#0C1E38;box-shadow:inset 0 0 0 1px rgba(79,195,247,0.2);}
-.cell.other{background:#040C18;pointer-events:none;}
-.cell.other .cell-inner{opacity:.12;}
+.cell:hover{background:#0A1A30;box-shadow:inset 0 0 0 1px rgba(79,195,247,0.18);}
+.cell.other{background:#030A14;pointer-events:none;}
+.cell.other .cell-inner{opacity:.10;}
+
+/* Majalis — deep ruby-navy, bleeds from the dark base */
 .cell.ev-jk{
-  background:linear-gradient(155deg,#071A3E 0%,#0C2F6A 45%,#082250 100%);
-  border-color:rgba(79,195,247,0.35)!important;
-  box-shadow:inset 0 1px 0 rgba(79,195,247,0.15);
+  background:linear-gradient(160deg,#060F1E 0%,#150810 35%,#2A0A14 65%,#1A0810 100%);
+  border-color:rgba(185,28,60,0.35)!important;
+  box-shadow:inset 0 1px 0 rgba(185,28,60,0.12),inset 0 0 30px rgba(120,10,30,0.15);
 }
-.cell.ev-jk::after{background:linear-gradient(180deg,rgba(79,195,247,0.07) 0%,transparent 50%);}
+.cell.ev-jk::after{
+  background:linear-gradient(180deg,rgba(185,28,60,0.06) 0%,transparent 60%);
+}
+
+/* Training — warm amber-navy, bleeds from the dark base */
 .cell.ev-training{
-  background:linear-gradient(155deg,#0A0E1A 0%,#1A1A00 30%,#2A1800 65%,#0C1828 100%);
-  border-color:rgba(180,130,60,0.45)!important;
-  box-shadow:inset 0 1px 0 rgba(245,158,11,0.12),inset 0 0 20px rgba(79,195,247,0.04);
+  background:linear-gradient(160deg,#060F1E 0%,#0E100A 30%,#1C1505 60%,#120F08 100%);
+  border-color:rgba(180,130,40,0.32)!important;
+  box-shadow:inset 0 1px 0 rgba(200,150,40,0.10),inset 0 0 30px rgba(140,100,10,0.10);
 }
-.cell.ev-training::after{background:linear-gradient(180deg,rgba(245,158,11,0.06) 0%,rgba(79,195,247,0.04) 100%);}
-.cell.ev-training .dn{color:#E8C96A;}
+.cell.ev-training::after{
+  background:linear-gradient(180deg,rgba(200,150,40,0.05) 0%,transparent 60%);
+}
+
 .cell.today{
   background:linear-gradient(155deg,#071E44 0%,#0A2858 100%);
-  box-shadow:inset 0 0 0 2px rgba(79,195,247,0.6),0 0 20px rgba(79,195,247,0.08);
+  box-shadow:inset 0 0 0 2px rgba(79,195,247,0.55),0 0 18px rgba(79,195,247,0.07);
 }
-.cell.today::after{background:linear-gradient(180deg,rgba(79,195,247,0.1) 0%,transparent 50%);}
+.cell.today::after{background:linear-gradient(180deg,rgba(79,195,247,0.08) 0%,transparent 50%);}
 
 /* Corner event badge */
 .corner-badge{
@@ -236,13 +244,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
 /* Day number */
 .dn{
   font-family:'Barlow',sans-serif;font-size:22px;font-weight:900;
-  color:#4A7FA8;line-height:1;margin-bottom:6px;letter-spacing:-1px;
+  color:#3E6A88;line-height:1;margin-bottom:6px;letter-spacing:-1px;
 }
-.cell:hover .dn{color:#6AABCF;}
-.cell.today .dn{color:#4FC3F7;text-shadow:0 0 20px rgba(79,195,247,0.4);}
-.cell.other .dn{color:#1A2E40;}
-.cell.ev-jk .dn{color:#5A9ACC;}
-.cell.ev-training .dn{color:#D97706;}
+.cell:hover .dn{color:#5A90B8;}
+.cell.today .dn{color:#4FC3F7;text-shadow:0 0 18px rgba(79,195,247,0.35);}
+.cell.other .dn{color:#18293A;}
+.cell.ev-jk .dn{color:#C06070;}
+.cell.ev-training .dn{color:#A88840;}
 
 /* ── DUTY BLOCK ── */
 .duty{margin-top:2px;}
@@ -250,8 +258,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
   font-family:'DM Sans',sans-serif;
   font-size:6.5px;font-weight:700;
   text-transform:uppercase;letter-spacing:.14em;
-  color:#3A7A9C;
-  border-left:2px solid #1E5070;
+  color:#4A8FAE;
+  border-left:2px solid #2A6080;
   padding-left:5px;
   margin-bottom:5px;line-height:1.2;
 }
@@ -260,15 +268,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
 .duty-name{
   font-family:'Barlow',sans-serif;
   font-size:14px;font-weight:800;
-  color:#E8F4FD;line-height:1.2;
+  color:#F0F8FF;line-height:1.2;
   display:flex;align-items:center;gap:5px;
+  text-shadow:0 1px 3px rgba(0,0,0,0.4);
 }
 .chk{color:#4FC3F7;font-size:11px;flex-shrink:0;}
 
 .duty-unassigned{
   font-family:'Barlow',sans-serif;
   font-size:13px;font-weight:700;font-style:italic;
-  color:#2E5878;line-height:1.2;
+  color:#3A6A88;line-height:1.2;
 }
 
 .sup-tag{
@@ -1313,7 +1322,7 @@ function renderCal(){
       }
       // ── Majalis type label — hidden for known types (circle badge replaces it) ──
       if(mj && !getMjBadge(mj.name)){
-        h+=`<div style="font-family:'DM Sans',sans-serif;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F7;margin-bottom:4px;border-left:2px solid #4FC3F7;padding-left:5px;">${mj.type}</div>`;
+        h+=`<div style="font-family:'DM Sans',sans-serif;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#E07080;margin-bottom:4px;border-left:2px solid rgba(185,28,60,0.6);padding-left:5px;">${mj.type}</div>`;
       }
 
       // ── JAMĀTKHANA duty block ──
@@ -2296,6 +2305,3 @@ document.querySelectorAll('.nav-item').forEach(n=>{
 </script>
 </body>
 </html>
-
-
-
