@@ -673,6 +673,7 @@ tr:hover td{background:var(--ds2);}
       <div class="nav-item ao" data-page="volunteers" onclick="nav(this)"><span class="ni">👥</span> User Management</div>
       <div class="nav-item ao" data-page="events" onclick="nav(this)"><span class="ni">🕌</span> Add-ons</div>
       <div class="nav-item ao" data-page="audit" onclick="nav(this)"><span class="ni">🔍</span> Audit Logs</div>
+      <div class="nav-item ep-only" data-page="adminpanel" onclick="nav(this)"><span class="ni">⚙️</span> Admin Panel</div>
     </nav>
     <div class="sb-bot">
       <div class="uchip">
@@ -902,6 +903,94 @@ tr:hover td{background:var(--ds2);}
         </div>
         <div id="auditList" style="max-height:600px;overflow-y:auto;"></div>
       </div>
+    </div>
+
+
+    <!-- ADMIN PANEL — eshan.punjwani only -->
+    <div class="page ep-only" id="page-adminpanel">
+      <div class="ph">
+        <div><h1>⚙️ Admin Panel</h1><p>System administration — restricted access</p></div>
+      </div>
+
+      <!-- Set Roster Month -->
+      <div class="iv-panel" style="margin-bottom:20px;">
+        <div class="iv-ph" style="background:linear-gradient(135deg,#0B3A6B,#1565C0);">
+          <span>📅</span> Set Roster Month
+        </div>
+        <div class="iv-pb">
+          <div class="add-form" style="background:linear-gradient(160deg,#071628,#0B2A5A);border:1px solid rgba(79,195,247,0.3);">
+            <div style="font-size:11px;color:var(--dm);margin-bottom:12px;line-height:1.6;">
+              Jump the roster calendar to any month and year directly.
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Month</div>
+                <select id="ap-month" class="ws" style="background:#0D2040;color:#E8F4FD;border:1px solid rgba(79,195,247,0.3);min-width:130px;">
+                  <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+                  <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+                  <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+                  <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                </select>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Year</div>
+                <input type="number" id="ap-year" class="wi" style="width:100px;" min="2020" max="2099">
+              </div>
+              <button class="btn btn-bl" onclick="apSetMonth()">Set Month</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create New User -->
+      <div class="iv-panel" style="margin-bottom:20px;">
+        <div class="iv-ph" style="background:linear-gradient(135deg,#1A3A0B,#2A6010);">
+          <span>👤</span> Create New User
+        </div>
+        <div class="iv-pb">
+          <div class="add-form" style="background:linear-gradient(160deg,#061408,#0A2010);border:1px solid rgba(34,197,94,0.25);">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#4ADE80;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Display Name</div>
+                <input type="text" id="ap-display" placeholder="e.g. John Smith" class="wi">
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#4ADE80;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Username</div>
+                <input type="text" id="ap-username" placeholder="e.g. john.smith" class="wi">
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#4ADE80;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Password</div>
+                <input type="text" id="ap-password" placeholder="Set a password" class="wi">
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#4ADE80;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Role</div>
+                <select id="ap-role" class="ws" style="background:#0D2040;color:#E8F4FD;border:1px solid rgba(34,197,94,0.25);">
+                  <option value="admin">Admin</option>
+                  <option value="volunteer">Volunteer (view only)</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-bl" style="background:linear-gradient(135deg,#166534,#15803D);" onclick="apCreateUser()">+ Create User</button>
+          </div>
+          <div id="ap-userlist" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <!-- Clear Audit Logs -->
+      <div class="iv-panel">
+        <div class="iv-ph" style="background:linear-gradient(135deg,#7F1D1D,#B91C1C);">
+          <span>🛡️</span> Audit Logs
+        </div>
+        <div class="iv-pb">
+          <div class="add-form" style="background:linear-gradient(160deg,#1A0606,#2D0A0A);border:1px solid rgba(239,68,68,0.25);">
+            <div style="font-size:11px;color:#FCA5A5;margin-bottom:14px;line-height:1.7;">
+              ⚠️ This will permanently delete all audit log entries from the database. This action cannot be undone.
+            </div>
+            <button class="btn btn-da" onclick="confirmClearAllLogs()" style="font-size:13px;padding:9px 20px;">🗑 Clear All Audit Logs</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- AI AUTO-ROSTER -->
@@ -1162,6 +1251,8 @@ function applySession(){
   document.getElementById('url').textContent  = CU.role === 'admin' ? 'Administrator' : 'Volunteer';
   document.getElementById('uav').textContent  = CU.display[0].toUpperCase();
   if(CU.role !== 'admin') document.querySelectorAll('.ao').forEach(e => e.style.display = 'none');
+  // Admin panel only for eshan.punjwani
+  document.querySelectorAll('.ep-only').forEach(e => e.style.display = (CU.user === 'eshan.punjwani') ? 'flex' : 'none');
 }
 
 // Restore session on refresh
@@ -1196,15 +1287,7 @@ function logout(){
 /* ═══════════════════════════════════
    NAV
 ═══════════════════════════════════ */
-function nav(el){
-  if(!el)return;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+el.dataset.page).classList.add('active');
-  el.classList.add('active');
-  // Always re-render audit logs when navigating to that page
-  if(el.dataset.page === 'audit') renderAuditLogs();
-}
+/* nav() is defined in the Admin Panel section below */
 
 /* ═══════════════════════════════════
    RENDER ALL
@@ -2297,11 +2380,102 @@ function closeSidebar(){
   document.querySelector('.sidebar').classList.remove('open');
   document.getElementById('sideOverlay').classList.remove('show');
 }
-// Close sidebar on nav item click (mobile)
-document.querySelectorAll('.nav-item').forEach(n=>{
-  n.addEventListener('click',()=>{ if(window.innerWidth<=768) closeSidebar(); });
-});
+// Mobile sidebar close handled in nav()
+
+
+/* ═══════════════════════════════════
+   ADMIN PANEL (eshan.punjwani only)
+═══════════════════════════════════ */
+
+// Runtime user overrides (created via admin panel this session)
+let runtimeUsers = {};
+
+function apSetMonth(){
+  if(!window.CU || CU.user !== 'eshan.punjwani'){ toast('Access denied','err'); return; }
+  const mo = parseInt(document.getElementById('ap-month').value);
+  const yr = parseInt(document.getElementById('ap-year').value);
+  if(isNaN(yr)||yr<2020||yr>2099){ toast('Enter a valid year','err'); return; }
+  calMo = mo; calYr = yr;
+  sessionStorage.setItem('jk_calMo', calMo);
+  sessionStorage.setItem('jk_calYr', calYr);
+  auditLog(`Set roster month to ${MO[calMo]} ${calYr}`, 'roster', 'Via Admin Panel');
+  autoRoster();
+  toast(`Roster set to ${MO[calMo]} ${calYr}`);
+  // Navigate to calendar
+  nav(document.querySelector('[data-page=calendar]'));
+}
+
+function apCreateUser(){
+  if(!window.CU || CU.user !== 'eshan.punjwani'){ toast('Access denied','err'); return; }
+  const display  = document.getElementById('ap-display').value.trim();
+  const username = document.getElementById('ap-username').value.trim().toLowerCase();
+  const password = document.getElementById('ap-password').value.trim();
+  const role     = document.getElementById('ap-role').value;
+  if(!display)  { toast('Enter a display name','err'); return; }
+  if(!username) { toast('Enter a username','err'); return; }
+  if(!password) { toast('Enter a password','err'); return; }
+  if(USERS[username] || runtimeUsers[username]){ toast('Username already exists','err'); return; }
+  runtimeUsers[username] = { pw: password, role, display };
+  // Inject into live USERS object
+  USERS[username] = { pw: password, role, display };
+  document.getElementById('ap-display').value  = '';
+  document.getElementById('ap-username').value = '';
+  document.getElementById('ap-password').value = '';
+  auditLog(`Created user: ${display} (${username})`, 'login', `Role: ${role}`);
+  renderApUserList();
+  toast(`User "${display}" created!`);
+}
+
+function apDeleteUser(username){
+  if(!window.CU || CU.user !== 'eshan.punjwani'){ toast('Access denied','err'); return; }
+  if(!runtimeUsers[username]){ toast('Cannot delete built-in users','err'); return; }
+  const display = USERS[username]?.display || username;
+  delete USERS[username];
+  delete runtimeUsers[username];
+  auditLog(`Deleted user: ${display} (${username})`, 'login', 'Via Admin Panel');
+  renderApUserList();
+  toast(`User "${display}" deleted.`);
+}
+
+function renderApUserList(){
+  const el = document.getElementById('ap-userlist'); if(!el) return;
+  const allUsers = Object.entries(USERS);
+  if(!allUsers.length){ el.innerHTML=''; return; }
+  el.innerHTML = `
+    <div style="font-size:9px;font-weight:700;color:var(--dm);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">All Users (${allUsers.length})</div>
+    ${allUsers.map(([u,d])=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--ds2);border:1px solid var(--db);border-radius:8px;margin-bottom:5px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#0B3A6B,#1565C0);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;">${(d.display||u)[0].toUpperCase()}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:600;color:#E8F4FD;">${d.display}</div>
+          <div style="font-size:10px;color:var(--dm);font-family:monospace;">${u} · <span style="color:${d.role==='admin'?'#4FC3F7':'#94A3B8'}">${d.role}</span></div>
+        </div>
+        <div style="font-size:11px;color:#4A6A80;font-family:monospace;background:rgba(0,0,0,0.3);padding:2px 8px;border-radius:4px;letter-spacing:.05em;">${d.pw}</div>
+        ${runtimeUsers[u]?`<button onclick="apDeleteUser('${u}')" style="background:rgba(192,57,43,.12);color:#f88;border:1px solid rgba(192,57,43,.3);border-radius:5px;padding:3px 8px;font-size:10px;cursor:pointer;">✕</button>`:''}
+      </div>`).join('')}
+  `;
+}
+
+// Init admin panel fields on nav
+const _origNav = nav;
+function nav(el){
+  if(!el) return;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+el.dataset.page).classList.add('active');
+  el.classList.add('active');
+  if(el.dataset.page === 'audit') renderAuditLogs();
+  if(el.dataset.page === 'adminpanel'){
+    // Pre-fill current month
+    document.getElementById('ap-month').value = calMo;
+    document.getElementById('ap-year').value  = calYr;
+    renderApUserList();
+  }
+  if(window.innerWidth<=768) closeSidebar();
+}
 
 </script>
 </body>
 </html>
+
+
