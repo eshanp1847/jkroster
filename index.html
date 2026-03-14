@@ -1248,7 +1248,7 @@ function renderCal(){
     let h='<div class="cell-inner">';
 
     // ── Corner badge ──
-    if(!c.other&&tr)  h+=`<div class="corner-badge" style="background:linear-gradient(135deg,#92400E,#B45309);color:#FCD34D;border-color:rgba(245,158,11,0.4);">🎓 ${trunc(tr.trainee||tr.name,10)}</div>`;
+    if(!c.other&&tr)  h+=`<div class="corner-badge" style="background:linear-gradient(135deg,#92400E,#B45309);color:#FCD34D;border-color:rgba(245,158,11,0.4);">🎓 Training</div>`;
     else if(!c.other&&mj) h+=`<div class="corner-badge jk-badge">${trunc(mj.name,12)}</div>`;
 
     // ── Day number ──
@@ -1257,7 +1257,7 @@ function renderCal(){
     if(!c.other){
       // ── Training label ──
       if(tr){
-        h+=`<div style="font-family:'DM Sans',sans-serif;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#FCD34D;margin-bottom:4px;border-left:2px solid #F59E0B;padding-left:5px;">🎓 ${tr.trainee||tr.name}</div>`;
+      // ── Training label removed ──
       }
       // ── Majalis type label ──
       if(mj){
