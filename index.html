@@ -201,12 +201,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
 }
 .cell.ev-jk::after{background:linear-gradient(180deg,rgba(79,195,247,0.07) 0%,transparent 50%);}
 .cell.ev-training{
-  background:linear-gradient(155deg,#110900 0%,#2D1800 50%,#1C1000 100%);
-  border-color:rgba(245,158,11,0.4)!important;
-  box-shadow:inset 0 1px 0 rgba(245,158,11,0.15);
+  background:linear-gradient(155deg,#0A0E1A 0%,#1A1A00 30%,#2A1800 65%,#0C1828 100%);
+  border-color:rgba(180,130,60,0.45)!important;
+  box-shadow:inset 0 1px 0 rgba(245,158,11,0.12),inset 0 0 20px rgba(79,195,247,0.04);
 }
-.cell.ev-training::after{background:linear-gradient(180deg,rgba(245,158,11,0.07) 0%,transparent 50%);}
-.cell.ev-training .dn{color:#FCD34D;}
+.cell.ev-training::after{background:linear-gradient(180deg,rgba(245,158,11,0.06) 0%,rgba(79,195,247,0.04) 100%);}
+.cell.ev-training .dn{color:#E8C96A;}
 .cell.today{
   background:linear-gradient(155deg,#071E44 0%,#0A2858 100%);
   box-shadow:inset 0 0 0 2px rgba(79,195,247,0.6),0 0 20px rgba(79,195,247,0.08);
@@ -662,7 +662,7 @@ tr:hover td{background:var(--ds2);}
       <div class="nav-item" data-page="calendar" onclick="nav(this)"><span class="ni">📅</span> Monthly Roster</div>
       <div class="nav-sec ao">Management</div>
       <div class="nav-item ao" data-page="volunteers" onclick="nav(this)"><span class="ni">👥</span> User Management</div>
-      <div class="nav-item ao" data-page="events" onclick="nav(this)"><span class="ni">🕌</span> Majalis Dates</div>
+      <div class="nav-item ao" data-page="events" onclick="nav(this)"><span class="ni">🕌</span> Add-ons</div>
       <div class="nav-item ao" data-page="audit" onclick="nav(this)"><span class="ni">🔍</span> Audit Logs</div>
     </nav>
     <div class="sb-bot">
@@ -789,7 +789,7 @@ tr:hover td{background:var(--ds2);}
 
     <!-- MAJALIS DATES -->
     <div class="page ao" id="page-events">
-      <div class="ph"><div><h1>Majalis Dates</h1><p>Schedule and manage upcoming Majalis &amp; Training Days</p></div></div>
+      <div class="ph"><div><h1>Add-ons</h1><p>Schedule and manage upcoming Majalis &amp; Training Days</p></div></div>
 
       <!-- ── MAJALIS PANEL ── -->
       <div class="iv-panel" style="margin-bottom:20px;">
@@ -1248,7 +1248,7 @@ function renderCal(){
     let h='<div class="cell-inner">';
 
     // ── Corner badge ──
-    if(!c.other&&tr)  h+=`<div class="corner-badge" style="background:linear-gradient(135deg,#92400E,#B45309);color:#FCD34D;border-color:rgba(245,158,11,0.4);">🎓 Training</div>`;
+    if(!c.other&&tr)  h+=`<div class="corner-badge" style="background:linear-gradient(135deg,#1A2A4A,#8B5A0E);color:#E8C96A;border:1px solid rgba(180,130,60,0.5);">🎓 Training</div>`;
     else if(!c.other&&mj) h+=`<div class="corner-badge jk-badge">${trunc(mj.name,12)}</div>`;
 
     // ── Day number ──
@@ -1510,6 +1510,20 @@ function renderVolCards(){
       <div class="vc-body">
         <div class="ar" style="margin-top:0;"><label>Roles</label>${rolePills(v)}</div>
         <div class="ar"><label>Weekly Availability</label><div class="dr">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(day=>`<label class="day-tog"><input type="checkbox" value="${day}"${v.days.includes(day)?' checked':''} onchange="uDays(${v.id})"><span>${day}</span></label>`).join('')}</div></div>
+        <div class="ar" style="margin-top:10px;">
+          <label>Busy Dates <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#4A6A80;font-size:9px;">(dates this person is unavailable)</span></label>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
+            <input type="date" id="bd-input-${v.id}" class="wi" style="max-width:160px;font-size:12px;padding:6px 9px;">
+            <button onclick="addBusyDate(${v.id})" style="background:rgba(79,195,247,0.1);border:1px solid rgba(79,195,247,0.25);color:#4FC3F7;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;">+ Add</button>
+          </div>
+          <div id="bd-list-${v.id}" style="display:flex;flex-wrap:wrap;gap:4px;">
+            ${(v.bds||'').split(',').filter(d=>d.trim()).map(d=>`
+              <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(192,57,43,0.12);border:1px solid rgba(192,57,43,0.25);border-radius:5px;padding:2px 8px;font-size:11px;color:#f88;">
+                ${fd(d.trim())}
+                <span onclick="removeBusyDate(${v.id},'${d.trim()}')" style="cursor:pointer;font-size:13px;opacity:.7;line-height:1;">×</span>
+              </span>`).join('')}
+          </div>
+        </div>
         <div class="vf" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:11px;padding-top:10px;border-top:1px solid var(--db);">
           <button class="btn btn-da btn-sm" onclick="rmVol(${v.id})">🗑 Remove</button>
         </div>
@@ -1524,11 +1538,15 @@ function addVol(){
   const days=[...document.querySelectorAll('#page-volunteers .day-tog input:checked')].map(i=>i.value);
   const newVol={id:Date.now(),name:n,type:'Team Member',ageGroup:'',days,mph:false,roles:['Team Member'],bds:'',status:'active'};
   vols.push(newVol);
+  // Reset form
   document.getElementById('nName').value='';
+  document.querySelectorAll('#page-volunteers .add-form .day-tog input').forEach(cb=>{
+    cb.checked = cb.value === 'Sat'; // reset to default (Sat only)
+  });
   renderVolCards();updateStats();
   autoRoster();
   dbSaveVol(newVol);
-  auditLog(`Added volunteer: ${n}`, 'volunteer', `Name: ${n}`);
+  auditLog(`Added volunteer: ${n}`, 'volunteer', `Days: ${days.join(', ')||'none'}`);
   toast('Volunteer added — roster updated!');
 }
 
@@ -1561,6 +1579,38 @@ function uDays(id){
     autoRoster();
     dbSaveVol(v);
   }
+}
+
+function addBusyDate(id){
+  const v=vols.find(x=>x.id===id);
+  const input=document.getElementById('bd-input-'+id);
+  if(!v||!input) return;
+  const date=input.value.trim();
+  if(!date){toast('Pick a date first','err');return;}
+  const existing=(v.bds||'').split(',').map(d=>d.trim()).filter(Boolean);
+  if(existing.includes(date)){toast('Already added','err');return;}
+  existing.push(date);
+  v.bds=existing.join(',');
+  input.value='';
+  auditLog(`Added busy date for ${v.name}`,'volunteer',`Date: ${fd(date)}`);
+  renderVolCards();
+  // Re-open card after render
+  setTimeout(()=>{const c=document.getElementById('vc-'+id);if(c)c.classList.add('open');},0);
+  autoRoster();
+  dbSaveVol(v);
+  toast(`Busy date added for ${v.name}`);
+}
+
+function removeBusyDate(id,date){
+  const v=vols.find(x=>x.id===id);
+  if(!v) return;
+  const existing=(v.bds||'').split(',').map(d=>d.trim()).filter(Boolean);
+  v.bds=existing.filter(d=>d!==date).join(',');
+  auditLog(`Removed busy date for ${v.name}`,'volunteer',`Date: ${fd(date)}`);
+  renderVolCards();
+  setTimeout(()=>{const c=document.getElementById('vc-'+id);if(c)c.classList.add('open');},0);
+  autoRoster();
+  dbSaveVol(v);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2158,4 +2208,3 @@ document.querySelectorAll('.nav-item').forEach(n=>{
 </script>
 </body>
 </html>
-
