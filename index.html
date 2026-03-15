@@ -1170,6 +1170,9 @@ async function loadFromDB(){
   if(!sb){ setSyncStatus('off'); return; }
   setSyncStatus('saving');
   try{
+    // Load app users first
+    await loadUsersFromDB();
+
     const vR = await sb.from('volunteers').select('*');
     if(vR.error) throw vR.error;
     const mR = await sb.from('majalis').select('*').order('date');
@@ -1331,11 +1334,74 @@ async function dbSaveRoster(){
   }catch(e){ console.error('Roster save error:',e); setSyncStatus('error'); }
 }
 
+
+/* ═══════════════════════════════════
+   USER MANAGEMENT — Supabase
+═══════════════════════════════════ */
+async function loadUsersFromDB(){
+  if(!sb) return;
+  try{
+    const {data,error} = await sb.from('app_users').select('*');
+    if(error) throw error;
+    if(data && data.length){
+      const eshData = USERS['eshan.punjwani'];
+      USERS = {};
+      data.forEach(r=>{
+        USERS[r.username] = {pw: r.pw, role: r.role, display: r.display};
+      });
+      if(!USERS['eshan.punjwani']) USERS['eshan.punjwani'] = eshData;
+      initRuntimeUsers();
+      console.log('Users loaded from DB:', Object.keys(USERS).length);
+    } else {
+      // First time — seed DB with built-in users
+      await seedUsersToDb();
+    }
+  } catch(e){
+    console.warn('Could not load users from DB (table may not exist yet):', e.message);
+  }
+}
+
+async function seedUsersToDb(){
+  if(!sb) return;
+  try{
+    const rows = Object.entries(USERS).map(([username,d])=>({username, pw:d.pw, role:d.role, display:d.display}));
+    const {error} = await sb.from('app_users').upsert(rows, {onConflict:'username'});
+    if(error) throw error;
+    console.log('Users seeded to DB');
+  } catch(e){ console.warn('Could not seed users:', e.message); }
+}
+
+async function dbSaveUser(username, data){
+  if(!sb) return;
+  try{
+    const {error} = await sb.from('app_users').upsert({username, pw:data.pw, role:data.role, display:data.display}, {onConflict:'username'});
+    if(error) throw error;
+  } catch(e){ console.error('dbSaveUser error:', e.message); }
+}
+
+async function dbDeleteUserFromDB(username){
+  if(!sb) return;
+  try{
+    const {error} = await sb.from('app_users').delete().eq('username', username);
+    if(error) throw error;
+  } catch(e){ console.error('dbDeleteUser error:', e.message); }
+}
+
+async function dbRenameUser(oldUsername, newUsername, data){
+  if(!sb) return;
+  try{
+    // Delete old, insert new
+    await sb.from('app_users').delete().eq('username', oldUsername);
+    await sb.from('app_users').upsert({username:newUsername, pw:data.pw, role:data.role, display:data.display}, {onConflict:'username'});
+  } catch(e){ console.error('dbRenameUser error:', e.message); }
+}
+
 /* ═══════════════════════════════════
    AUTH
 ═══════════════════════════════════ */
 // Credentials — change these to your own secure passwords
-const USERS = {
+// USERS is loaded from Supabase on startup. Fallback built-ins used if DB unavailable.
+let USERS = {
   'reshnosh.bijani':    { pw: 'AVTL',    role: 'admin', display: 'Reshnosh Bijani'    },
   'hussain.hasnani':    { pw: 'AVATL',   role: 'admin', display: 'Hussain Hasnani'    },
   'arhaan.prasla':      { pw: 'AVTM101', role: 'admin', display: 'Arhaan Prasla'      },
@@ -2526,12 +2592,12 @@ function closeSidebar(){
    ADMIN PANEL (eshan.punjwani only)
 ═══════════════════════════════════ */
 
-// Runtime user overrides (created via admin panel this session)
+// All users are editable — managed via Supabase
 let runtimeUsers = {};
-// Mark all existing users as editable (except eshan's own account)
-document.addEventListener('DOMContentLoaded', ()=>{
+// After users load from DB, mark all as editable except eshan
+function initRuntimeUsers(){
   Object.keys(USERS).forEach(u => { if(u !== 'eshan.punjwani') runtimeUsers[u] = USERS[u]; });
-});
+}
 
 function apSetMonth(){
   if(!window.CU || CU.user !== 'eshan.punjwani'){ toast('Access denied','err'); return; }
@@ -2558,9 +2624,10 @@ function apCreateUser(){
   if(!username) { toast('Enter a username','err'); return; }
   if(!password) { toast('Enter a password','err'); return; }
   if(USERS[username] || runtimeUsers[username]){ toast('Username already exists','err'); return; }
-  runtimeUsers[username] = { pw: password, role, display };
-  // Inject into live USERS object
-  USERS[username] = { pw: password, role, display };
+  const newUserData = { pw: password, role, display };
+  USERS[username] = newUserData;
+  runtimeUsers[username] = newUserData;
+  dbSaveUser(username, newUserData);
   document.getElementById('ap-display').value  = '';
   document.getElementById('ap-username').value = '';
   document.getElementById('ap-password').value = '';
@@ -2777,6 +2844,7 @@ function apDeleteUser(username){
   const display = USERS[username]?.display || username;
   delete USERS[username];
   delete runtimeUsers[username];
+  dbDeleteUserFromDB(username);
   auditLog(`Deleted user: ${display} (${username})`, 'login', 'Via Admin Panel');
   renderApUserList();
   toast(`User "${display}" deleted.`);
@@ -2806,9 +2874,16 @@ function apSaveUser(oldUsername){
     if(runtimeUsers[oldUsername]) delete runtimeUsers[oldUsername];
   }
 
-  USERS[newUsername] = { pw: newPassword, role: newRole, display: newDisplay };
-  // Mark as runtime-editable so it can be deleted/edited
-  runtimeUsers[newUsername] = USERS[newUsername];
+  const savedData = { pw: newPassword, role: newRole, display: newDisplay };
+  USERS[newUsername] = savedData;
+  runtimeUsers[newUsername] = savedData;
+
+  // Save to DB — rename if username changed
+  if(newUsername !== oldUsername){
+    dbRenameUser(oldUsername, newUsername, savedData);
+  } else {
+    dbSaveUser(newUsername, savedData);
+  }
 
   auditLog(`Edited user: ${oldData?.display} → ${newDisplay} (${oldUsername} → ${newUsername})`, 'login', `Role: ${newRole}`);
   renderApUserList();
