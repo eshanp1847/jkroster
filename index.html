@@ -1347,7 +1347,7 @@ async function dbSaveRoster(){
 async function loadMonthSetting(){
   if(!sb) return;
   try{
-    const {data,error} = await sb.from('app_settings').select('*').eq('key','active_month').single();
+    const {data,error} = await sb.from('app_settings').select('*').eq('key','active_month').maybeSingle();
     if(error) return; // table may not exist yet — silently ignore
     if(data && data.value){
       const val = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
@@ -1375,6 +1375,22 @@ async function saveMonthSetting(mo, yr){
 /* ═══════════════════════════════════
    USER MANAGEMENT — Supabase
 ═══════════════════════════════════ */
+
+async function loadUsersEarly(){
+  // Called on DOMContentLoaded so login always checks DB credentials
+  if(!sb) return;
+  try{
+    const {data,error} = await sb.from('app_users').select('*');
+    if(error || !data || !data.length) return;
+    const eshData = USERS['eshan.punjwani'];
+    USERS = {};
+    data.forEach(r=>{ USERS[r.username]={pw:r.pw,role:r.role,display:r.display}; });
+    if(!USERS['eshan.punjwani']) USERS['eshan.punjwani']=eshData;
+    initRuntimeUsers();
+    console.log('Users pre-loaded for login:', Object.keys(USERS).length);
+  } catch(e){ console.warn('loadUsersEarly failed:', e.message); }
+}
+
 async function loadUsersFromDB(){
   if(!sb) return;
   try{
@@ -1401,9 +1417,10 @@ async function loadUsersFromDB(){
 async function seedUsersToDb(){
   if(!sb) return;
   try{
+    // Only insert — never overwrite existing users
     const rows = Object.entries(USERS).map(([username,d])=>({username, pw:d.pw, role:d.role, display:d.display}));
-    const {error} = await sb.from('app_users').upsert(rows, {onConflict:'username'});
-    if(error) throw error;
+    const {error} = await sb.from('app_users').insert(rows);
+    if(error && error.code !== '23505') throw error; // ignore unique constraint violations
     console.log('Users seeded to DB');
   } catch(e){ console.warn('Could not seed users:', e.message); }
 }
@@ -1488,17 +1505,21 @@ function applySession(){
 }
 
 // Restore session on refresh
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   ['lu','lp'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
   });
+
+  // Load users from DB BEFORE showing login — so credentials are always current
+  await loadUsersEarly();
+
   const saved = sessionStorage.getItem('jk_session');
   if(saved){
     try{
       window.CU = JSON.parse(saved);
       applySession();
-      loadFromDB().then(()=>{ autoRoster(); renderAll(); loadAuditLogs(); startRealtime(); auditLog('Signed in', 'login', `Logged in as ${USERS[u].display}`); });
+      loadFromDB().then(()=>{ autoRoster(); renderAll(); loadAuditLogs(); startRealtime(); });
     } catch(e){ sessionStorage.removeItem('jk_session'); }
   }
 });
@@ -1703,7 +1724,9 @@ function chMo(d){
   if(calMo<0){calMo=11;calYr--;}
   sessionStorage.setItem('jk_calMo', calMo);
   sessionStorage.setItem('jk_calYr', calYr);
-  saveMonthSetting(calMo, calYr);
+  // Debounce DB save — only save after user stops clicking arrows
+  clearTimeout(window._chMoTimer);
+  window._chMoTimer = setTimeout(()=>saveMonthSetting(calMo, calYr), 800);
   auditLog(`Viewed roster for ${MO[calMo]} ${calYr}`,'roster',`Navigated to ${MO[calMo]} ${calYr}`);
   autoRoster();
 }
@@ -2419,6 +2442,7 @@ function auditLog(action, category, detail){
 
 async function dbSaveAuditLog(entry){
   if(!sb) return;
+  pauseRealtime(1500);
   try{
     const row = {
       ts:           entry.ts,
@@ -2891,14 +2915,18 @@ function apDeleteUser(username){
 
 function apSaveUser(oldUsername){
   if(!window.CU || CU.user !== 'eshan.punjwani'){ toast('Access denied','err'); return; }
-  const newDisplay  = document.getElementById('ap-edit-display-'+oldUsername.replace(/\./g,'_')).value.trim();
-  const newUsername = document.getElementById('ap-edit-username-'+oldUsername.replace(/\./g,'_')).value.trim().toLowerCase();
-  const newPassword = document.getElementById('ap-edit-pw-'+oldUsername.replace(/\./g,'_')).value.trim();
-  const newRole     = document.getElementById('ap-edit-role-'+oldUsername.replace(/\./g,'_')).value;
+  const _sid = oldUsername.replace(/\./g,'_').replace(/@/g,'_').replace(/[^a-zA-Z0-9_]/g,'_');
+  const newDisplay  = document.getElementById('ap-edit-display-'+_sid)?.value.trim()||'';
+  const newUsername = document.getElementById('ap-edit-username-'+_sid)?.value.trim().toLowerCase()||oldUsername;
+  const newPassword = document.getElementById('ap-edit-pw-'+_sid)?.value.trim()||'';
+  // For eshan (isSelf), role select is disabled — preserve existing role
+  const _roleEl = document.getElementById('ap-edit-role-'+_sid);
+  const newRole = (_roleEl && !_roleEl.disabled) ? _roleEl.value : (USERS[oldUsername]?.role||'admin');
 
   if(!newDisplay)  { toast('Display name cannot be empty','err'); return; }
   if(!newUsername) { toast('Username cannot be empty','err'); return; }
-  if(!newPassword) { toast('Password cannot be empty','err'); return; }
+  if(!newPassword && oldUsername !== 'eshan.punjwani') { toast('Password cannot be empty','err'); return; }
+  const finalPassword = newPassword || USERS[oldUsername]?.pw || '';
 
   // Check username collision (unless same username)
   if(newUsername !== oldUsername && USERS[newUsername]){
@@ -2913,7 +2941,7 @@ function apSaveUser(oldUsername){
     if(runtimeUsers[oldUsername]) delete runtimeUsers[oldUsername];
   }
 
-  const savedData = { pw: newPassword, role: newRole, display: newDisplay };
+  const savedData = { pw: finalPassword||newPassword, role: newRole, display: newDisplay };
   USERS[newUsername] = savedData;
   runtimeUsers[newUsername] = savedData;
 
@@ -2962,7 +2990,7 @@ function renderApUserList(){
             </div>
             <div>
               <div style="font-size:9px;font-weight:700;color:var(--dm);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Username</div>
-              <input type="text" id="ap-edit-username-${safeId}" value="${esc(u)}" class="wi" style="font-size:12px;padding:6px 9px;font-family:monospace;" ${isSelf?'readonly style="font-size:12px;padding:6px 9px;font-family:monospace;opacity:.5;"':''}>
+              <input type="text" id="ap-edit-username-${safeId}" value="${esc(u)}" class="wi" style="font-size:12px;padding:6px 9px;font-family:monospace;${isSelf?'opacity:.5;':''}" ${isSelf?'readonly':''}>
             </div>
             <div>
               <div style="font-size:9px;font-weight:700;color:var(--dm);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Password</div>
@@ -3105,6 +3133,7 @@ function pauseRealtime(ms=800){
 // ── Handlers ──
 
 function handleSettingChange(payload){
+  if(_realtimePaused) return;
   const row = payload.new || {};
   if(row.key === 'active_month' && row.value){
     try{
