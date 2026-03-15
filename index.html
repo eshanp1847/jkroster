@@ -1114,6 +1114,8 @@ tr:hover td{background:var(--ds2);}
    DATA
 ═══════════════════════════════════ */
 window.CU=null;
+// calMo/calYr loaded from Supabase (shared across all devices)
+// sessionStorage used as fallback until DB loads
 const _savedMo = sessionStorage.getItem('jk_calMo');
 const _savedYr = sessionStorage.getItem('jk_calYr');
 let calMo = _savedMo !== null ? parseInt(_savedMo) : new Date().getMonth();
@@ -1170,8 +1172,9 @@ async function loadFromDB(){
   if(!sb){ setSyncStatus('off'); return; }
   setSyncStatus('saving');
   try{
-    // Load app users first
+    // Load app users and global settings
     await loadUsersFromDB();
+    await loadMonthSetting();
 
     const vR = await sb.from('volunteers').select('*');
     if(vR.error) throw vR.error;
@@ -1334,6 +1337,40 @@ async function dbSaveRoster(){
   }catch(e){ console.error('Roster save error:',e); setSyncStatus('error'); }
 }
 
+
+
+/* ═══════════════════════════════════
+   GLOBAL MONTH SETTING
+   Stored in Supabase so all devices
+   always show the same month.
+═══════════════════════════════════ */
+async function loadMonthSetting(){
+  if(!sb) return;
+  try{
+    const {data,error} = await sb.from('app_settings').select('*').eq('key','active_month').single();
+    if(error) return; // table may not exist yet — silently ignore
+    if(data && data.value){
+      const val = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
+      if(typeof val.mo === 'number' && typeof val.yr === 'number'){
+        calMo = val.mo;
+        calYr = val.yr;
+        sessionStorage.setItem('jk_calMo', calMo);
+        sessionStorage.setItem('jk_calYr', calYr);
+      }
+    }
+  } catch(e){ /* ignore — settings table may not exist */ }
+}
+
+async function saveMonthSetting(mo, yr){
+  if(!sb) return;
+  try{
+    const {error} = await sb.from('app_settings').upsert(
+      {key:'active_month', value: JSON.stringify({mo, yr})},
+      {onConflict:'key'}
+    );
+    if(error) throw error;
+  } catch(e){ console.warn('Could not save month setting:', e.message); }
+}
 
 /* ═══════════════════════════════════
    USER MANAGEMENT — Supabase
@@ -1666,6 +1703,7 @@ function chMo(d){
   if(calMo<0){calMo=11;calYr--;}
   sessionStorage.setItem('jk_calMo', calMo);
   sessionStorage.setItem('jk_calYr', calYr);
+  saveMonthSetting(calMo, calYr);
   auditLog(`Viewed roster for ${MO[calMo]} ${calYr}`,'roster',`Navigated to ${MO[calMo]} ${calYr}`);
   autoRoster();
 }
@@ -2607,10 +2645,11 @@ function apSetMonth(){
   calMo = mo; calYr = yr;
   sessionStorage.setItem('jk_calMo', calMo);
   sessionStorage.setItem('jk_calYr', calYr);
-  auditLog(`Set roster month to ${MO[calMo]} ${calYr}`, 'roster', 'Via Admin Panel');
+  // Save to DB — all devices will receive this via Realtime
+  saveMonthSetting(calMo, calYr);
+  auditLog(`Set roster month to ${MO[calMo]} ${calYr}`, 'roster', 'Via Admin Panel — applies to all users');
   autoRoster();
-  toast(`Roster set to ${MO[calMo]} ${calYr}`);
-  // Navigate to calendar
+  toast(`Roster set to ${MO[calMo]} ${calYr} for all users`);
   nav(document.querySelector('[data-page=calendar]'));
 }
 
@@ -3028,6 +3067,16 @@ function startRealtime(){
       if(status === 'SUBSCRIBED') console.log('Realtime: roster ✓');
     });
 
+  // ── App Settings (shared month etc.) ──
+  const setCh = sb.channel('realtime-settings')
+    .on('postgres_changes', {event:'*', schema:'public', table:'app_settings'}, payload => {
+      if(_realtimePaused) return;
+      handleSettingChange(payload);
+    })
+    .subscribe(status => {
+      if(status === 'SUBSCRIBED') console.log('Realtime: app_settings ✓');
+    });
+
   // ── Audit Logs ──
   const auCh = sb.channel('realtime-audit')
     .on('postgres_changes', {event:'INSERT', schema:'public', table:'audit_logs'}, payload => {
@@ -3038,7 +3087,7 @@ function startRealtime(){
       if(status === 'SUBSCRIBED') console.log('Realtime: audit_logs ✓');
     });
 
-  _realtimeChannels = [volCh, mjCh, roCh, auCh];
+  _realtimeChannels = [volCh, mjCh, roCh, auCh, setCh];
   setSyncStatus('ok');
 }
 
@@ -3054,6 +3103,24 @@ function pauseRealtime(ms=800){
 }
 
 // ── Handlers ──
+
+function handleSettingChange(payload){
+  const row = payload.new || {};
+  if(row.key === 'active_month' && row.value){
+    try{
+      const val = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
+      if(typeof val.mo === 'number' && typeof val.yr === 'number'){
+        calMo = val.mo;
+        calYr = val.yr;
+        sessionStorage.setItem('jk_calMo', calMo);
+        sessionStorage.setItem('jk_calYr', calYr);
+        autoRoster();
+        showSyncPulse('📅');
+        toast(`Roster month updated to ${MO[calMo]} ${calYr}`);
+      }
+    } catch(e){ console.warn('handleSettingChange error:', e); }
+  }
+}
 
 function handleVolChange(payload){
   const {eventType, new:row, old} = payload;
