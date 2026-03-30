@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JK Roster — Auckland Jamatkhana</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -681,6 +681,7 @@ tr:hover td{background:var(--ds2);}
       <div class="nav-item ao" data-page="volunteers" onclick="nav(this)"><span class="ni">👥</span> User Management</div>
       <div class="nav-item ao" data-page="events" onclick="nav(this)"><span class="ni">🕌</span> Add-ons</div>
       <div class="nav-item ao" data-page="audit" onclick="nav(this)"><span class="ni">🔍</span> Audit Logs</div>
+      <div class="nav-item ao" data-page="override" onclick="nav(this)"><span class="ni">✏️</span> Manual Override</div>
       <div class="nav-item ep-only" data-page="adminpanel" onclick="nav(this)" style="display:none;"><span class="ni">⚙️</span> Admin Panel</div>
     </nav>
     <div class="sb-bot">
@@ -757,13 +758,13 @@ tr:hover td{background:var(--ds2);}
 
         <!-- Grid: headers + cells -->
         <div class="cal-grid">
-          <div class="col-hdr">Sunday</div>
           <div class="col-hdr">Monday</div>
           <div class="col-hdr">Tuesday</div>
           <div class="col-hdr">Wednesday</div>
           <div class="col-hdr">Thursday</div>
           <div class="col-hdr fri">Friday</div>
           <div class="col-hdr">Saturday</div>
+          <div class="col-hdr">Sunday</div>
           <div id="calBody" style="display:contents;"></div>
         </div>
 
@@ -914,6 +915,111 @@ tr:hover td{background:var(--ds2);}
 
 
     <!-- ADMIN PANEL — eshan.punjwani only -->
+
+    <!-- ── MANUAL OVERRIDE PAGE (all admins) ── -->
+    <div class="page ao" id="page-override">
+      <div class="ph">
+        <div><h1>✏️ Manual Override</h1><p>Override roster assignments for specific dates</p></div>
+      </div>
+      <div style="padding:20px 24px;">
+<div class="iv-panel" style="margin-bottom:20px;">
+        <div class="iv-ph" style="background:linear-gradient(135deg,#3B1A6B,#6D28D9);">
+          <span>✏️</span> Edit Specific Day
+        </div>
+        <div class="iv-pb">
+
+          <!-- Date picker -->
+          <div style="margin-bottom:14px;">
+            <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Date</div>
+            <input type="date" id="or-edit-date" class="wi" style="max-width:220px;border-color:rgba(109,40,217,0.4);" onchange="orLoadFields()">
+            <div id="or-edit-notes" style="font-size:11px;color:#6D4BA0;margin-top:6px;font-style:italic;min-height:16px;"></div>
+          </div>
+
+          <!-- ── ROSTER SECTION ── -->
+          <div class="add-form" style="background:linear-gradient(160deg,#0D0618,#1A0A38);border:1px solid rgba(109,40,217,0.35);margin-bottom:12px;">
+            <div style="font-size:10px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">📅 Roster Override</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">JK Volunteer</div>
+                <select id="or-edit-primary" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(109,40,217,0.4);">
+                  <option value="">— Auto-assigned —</option>
+                </select>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Supervisor (SUP tag)</div>
+                <select id="or-edit-sup" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(109,40,217,0.4);">
+                  <option value="">— None —</option>
+                </select>
+              </div>
+              <div id="or-edit-mph-wrap" style="grid-column:1/-1;">
+                <div style="font-size:9px;font-weight:700;color:#F59E0B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">MPH Congregation</div>
+                <div id="or-mph-current" style="font-size:11px;color:#4A6A80;font-style:italic;margin-bottom:7px;"></div>
+                <select id="or-edit-mph" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(245,158,11,0.4);width:100%;" onchange="orHandleMphChange()">
+                  <option value="">— Select volunteer —</option>
+                  <option value="__cancel__" style="color:#f88;font-weight:700;">✕ Cancel MPH Duty for this date</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-bl" style="background:linear-gradient(135deg,#4C1D95,#6D28D9);" onclick="orSaveDay()">💾 Save Roster</button>
+              <button class="btn btn-ol" onclick="orClearDay()">✕ Clear Override</button>
+            </div>
+          </div>
+
+          <!-- ── MAJALIS SECTION ── -->
+          <div class="add-form" style="background:linear-gradient(160deg,#060F1E,#0C2040);border:1px solid rgba(79,195,247,0.25);margin-bottom:12px;">
+            <div style="font-size:10px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">🕌 Majalis for this Day</div>
+            <div id="or-mj-current" style="font-size:11px;color:#4A6A80;margin-bottom:10px;font-style:italic;">No majalis on this day.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Majalis Name</div>
+                <select id="or-mj-select" class="ws" style="background:#071628;color:#E8F4FD;border:1px solid rgba(79,195,247,0.3);" onchange="handleApMjSelect()">
+                  <option value="">— Select type —</option>
+                  <option value="Chandraat">Chandraat</option>
+                  <option value="Student">Student</option>
+                  <option value="Paanch Baar Saal">Paanch Baar Saal</option>
+                  <option value="Bait-ul Khayal">Bait-ul Khayal</option>
+                  <option value="Chandraat (K)">Chandraat (K)</option>
+                  <option value="Student (K)">Student (K)</option>
+                  <option value="Paanch Baar Saal (K)">Paanch Baar Saal (K)</option>
+                  <option value="Bait-ul Khayal (K)">Bait-ul Khayal (K)</option>
+                  <option value="__custom__">✏️ Custom…</option>
+                </select>
+                <input type="text" id="or-mj-custom" placeholder="Custom name…" class="wi" style="display:none;margin-top:5px;border-color:rgba(79,195,247,0.3);">
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Date (auto-filled)</div>
+                <input type="text" id="or-mj-date-display" class="wi" style="border-color:rgba(79,195,247,0.2);color:#4A6A80;" readonly placeholder="Pick a date above first">
+              </div>
+              <button onclick="orAddMajalis()" style="height:38px;padding:0 14px;background:linear-gradient(135deg,#0B3A6B,#1565C0);color:#fff;border:none;border-radius:var(--r);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;">+ Add</button>
+            </div>
+          </div>
+
+          <!-- ── TRAINING SECTION ── -->
+          <div class="add-form" style="background:linear-gradient(160deg,#0E100A,#1C1505);border:1px solid rgba(200,150,40,0.25);">
+            <div style="font-size:10px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">🎓 Training for this Day</div>
+            <div id="or-tr-current" style="font-size:11px;color:#4A6A80;margin-bottom:10px;font-style:italic;">No training on this day.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Trainee</div>
+                <input type="text" id="or-tr-trainee" placeholder="Trainee name…" class="wi" style="border-color:rgba(200,150,40,0.3);">
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Trainer</div>
+                <input type="text" id="or-tr-trainer" placeholder="Trainer name…" class="wi" style="border-color:rgba(200,150,40,0.3);">
+              </div>
+              <button onclick="orAddTraining()" style="height:38px;padding:0 14px;background:linear-gradient(135deg,#92400E,#B45309);color:#FCD34D;border:none;border-radius:var(--r);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;">+ Add</button>
+            </div>
+            <div id="or-tr-delete-wrap" style="margin-top:8px;display:none;">
+              <button onclick="apRemoveTraining()" style="background:rgba(192,57,43,.12);color:#f88;border:1px solid rgba(192,57,43,.3);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;">🗑 Remove Training from this Day</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      </div>
+    </div>
+
     <div class="page ep-only" id="page-adminpanel" style="display:none;">
       <div class="ph">
         <div><h1>⚙️ Admin Panel</h1><p>System administration — restricted access</p></div>
@@ -1626,39 +1732,51 @@ function renderCal(){
   const body=document.getElementById('calBody');
   body.innerHTML='';
 
-  const first=new Date(calYr,calMo,1).getDay();
-  const dim=new Date(calYr,calMo+1,0).getDate();
-  const prev=new Date(calYr,calMo,0).getDate();
+  // ── Build cells: week starts Monday, no blank padding cells ──
+  // Roster starts on the first Monday of the month,
+  // ends just before the first Monday of the next month.
   const td=new Date();
+
+  // First Monday of this month
+  const firstOfMonth=new Date(calYr,calMo,1);
+  const firstDow=firstOfMonth.getDay(); // 0=Sun,1=Mon...6=Sat
+  // Days to advance to reach Monday (if firstDow=1 already, 0 days)
+  const daysToMon = firstDow===1 ? 0 : firstDow===0 ? 1 : (8-firstDow)%7;
+  const startDate=new Date(calYr,calMo,1+daysToMon);
+
+  // First Monday of next month
+  const firstOfNext=new Date(calYr,calMo+1,1);
+  const nextDow=firstOfNext.getDay();
+  const daysToNextMon = nextDow===1 ? 0 : nextDow===0 ? 1 : (8-nextDow)%7;
+  const endDate=new Date(calYr,calMo+1,1+daysToNextMon); // exclusive
+
   let cells=[];
-  for(let i=first-1;i>=0;i--) cells.push({d:prev-i,m:calMo-1,other:true});
-  for(let d=1;d<=dim;d++)     cells.push({d,m:calMo,other:false});
-  while(cells.length%7)       cells.push({d:cells.length-dim-first+1,m:calMo+1,other:true});
+  let cur=new Date(startDate);
+  while(cur<endDate){
+    cells.push({d:cur.getDate(), m:cur.getMonth(), yr:cur.getFullYear()});
+    cur.setDate(cur.getDate()+1);
+  }
 
   cells.forEach(c=>{
-    // compute date string (careful with month overflow)
-    const yr2=c.m<0?calYr-1:(c.m>11?calYr+1:calYr);
-    const mo2=c.m<0?11:(c.m>11?0:c.m);
-    const ds=`${yr2}-${String(mo2+1).padStart(2,'0')}-${String(c.d).padStart(2,'0')}`;
+    const ds=`${c.yr}-${String(c.m+1).padStart(2,'0')}-${String(c.d).padStart(2,'0')}`;
 
-    const mj  = c.other ? null : majalisEvs.find(e=>e.date===ds);
-    const tr  = c.other ? null : trainings.find(e=>e.date===ds);
+    const mj  = majalisEvs.find(e=>e.date===ds);
+    const tr  = trainings.find(e=>e.date===ds);
     const ro  = roster[ds]||{};
     const isFri = new Date(ds+'T12:00').getDay()===5;
-    const isToday=!c.other&&c.d===td.getDate()&&calMo===td.getMonth()&&calYr===td.getFullYear();
+    const isToday = c.yr===td.getFullYear() && c.m===td.getMonth() && c.d===td.getDate();
 
     const div=document.createElement('div');
     let cls='cell';
-    if(c.other)       cls+=' other';
-    else if(tr)       cls+=' ev-training';
-    else if(mj)       cls+=' ev-jk';
-    if(isToday)       cls+=' today';
+    if(tr)      cls+=' ev-training';
+    else if(mj) cls+=' ev-jk';
+    if(isToday) cls+=' today';
     div.className=cls;
-    if(!c.other) div.onclick=()=>openDayModal(ds,c.d);
+    div.onclick=()=>openDayModal(ds,c.d);
 
     let h='<div class="cell-inner">';
 
-    if(!c.other){
+    {
       // ── Badge (top-right circle) ──
       if(tr){
         h+=`<div style="position:absolute;top:7px;right:7px;background:linear-gradient(135deg,#92400E,#B45309);color:#FCD34D;border:1px solid rgba(245,158,11,0.4);border-radius:20px;padding:2px 7px;font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">🎓 Training</div>`;
@@ -1675,7 +1793,7 @@ function renderCal(){
     // ── Day number ──
     h+=`<div class="dn">${String(c.d).padStart(2,'0')}</div>`;
 
-    if(!c.other){
+    {
       // ── JK duty block ──
       if(tr){
         // Training day
@@ -1697,7 +1815,7 @@ function renderCal(){
       }
 
       // ── MPH block (Fridays only) ──
-      if(isFri){
+      if(isFri && !ro._mph_removed){
         const mphP=ro._mph_primary||null;
         h+=`<hr class="duty-sep">
           <div class="duty">
@@ -2338,7 +2456,7 @@ async function downloadRosterPNG(){
     const container = document.createElement('div');
     container.style.cssText = `
       position:fixed;left:-9999px;top:0;
-      width:2100px;
+      width:1680px;
       background:linear-gradient(160deg,#ffffff 0%,#e8f4ff 40%,#d0e8ff 100%);
       font-family:'DM Sans',sans-serif;
       padding:0;margin:0;
@@ -2626,12 +2744,12 @@ async function downloadRosterPNG(){
     document.body.appendChild(container);
 
     const canvas = await html2canvas(container, {
-      scale: 3,
+      scale: 2,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#e8f4ff',
       logging: false,
-      width: 2100,
+      width: 1680,
     });
 
     document.body.removeChild(container);
@@ -2655,8 +2773,8 @@ async function downloadRosterPNG(){
     out.getContext('2d').drawImage(canvas, 0, 0);
 
     const link = document.createElement('a');
-    link.download = `AV-Roster-${monthTitle.replace(' ','-')}.jpg`;
-    link.href = out.toDataURL('image/jpeg', 0.95);
+    link.download = `AV-Roster-${monthTitle.replace(' ','-')}.jpeg`;
+    link.href = out.toDataURL('image/jpeg', 0.92);
     link.click();
     toast('JPG saved!');
 } catch(e){
@@ -3473,6 +3591,12 @@ function nav(el){
   if(_pg.classList.contains('ep-only')) _pg.classList.add('ep-visible');
   el.classList.add('active');
   if(el.dataset.page === 'audit') renderAuditLogs();
+  if(el.dataset.page === 'override'){
+    const orDate = document.getElementById('or-edit-date');
+    if(orDate && !orDate.value){ orDate.value = new Date().toISOString().split('T')[0]; }
+    orLoadFields();
+  }
+
   if(el.dataset.page === 'adminpanel' && window.CU && CU.user === 'eshan.punjwani'){
     document.getElementById('ap-month').value = calMo;
     document.getElementById('ap-year').value  = calYr;
@@ -3667,6 +3791,116 @@ function showSyncPulse(icon){
   _pulseTimer = setTimeout(()=>{ dot.style.background='#00C853'; dot.title='Saved'; }, 1200);
 }
 
+
+
+// ── Override page shims — map or- IDs to the ap- functions ──
+function orLoadFields(){
+  const ds = document.getElementById('or-edit-date').value;
+  if(!ds) return;
+  // Mirror date into ap- field so apLoadDayFields works
+  const apDate = document.getElementById('ap-edit-date');
+  if(apDate) apDate.value = ds;
+  apLoadDayFields();
+  // Now copy populated values back to or- fields
+  _syncOrFields();
+}
+
+function _syncOrFields(){
+  const pairs = [
+    ['ap-edit-primary','or-edit-primary'],
+    ['ap-edit-sup','or-edit-sup'],
+    ['ap-edit-mph','or-edit-mph'],
+    ['ap-mph-current','or-mph-current'],
+    ['ap-edit-notes','or-edit-notes'],
+    ['ap-mj-current','or-mj-current'],
+    ['ap-mj-select','or-mj-select'],
+    ['ap-mj-custom','or-mj-custom'],
+    ['ap-mj-date-display','or-mj-date-display'],
+    ['ap-tr-current','or-tr-current'],
+    ['ap-tr-trainee','or-tr-trainee'],
+    ['ap-tr-trainer','or-tr-trainer'],
+    ['ap-tr-delete-wrap','or-tr-delete-wrap'],
+  ];
+  pairs.forEach(([apId, orId]) => {
+    const apEl = document.getElementById(apId);
+    const orEl = document.getElementById(orId);
+    if(!apEl || !orEl) return;
+    // Copy innerHTML for display divs
+    if(orEl.tagName === 'DIV' || orEl.tagName === 'SPAN'){
+      orEl.innerHTML = apEl.innerHTML;
+      orEl.style.cssText = apEl.style.cssText;
+    } else if(orEl.tagName === 'SELECT'){
+      orEl.innerHTML = apEl.innerHTML;
+      orEl.value = apEl.value;
+    } else {
+      orEl.value = apEl.value;
+    }
+  });
+}
+
+function orSaveDay(){
+  // Copy or- values into ap- fields, then call apSaveDay
+  const ds = document.getElementById('or-edit-date').value;
+  if(!ds){ toast('Select a date first','err'); return; }
+  const apDate = document.getElementById('ap-edit-date');
+  if(apDate) apDate.value = ds;
+  const apPrimary = document.getElementById('ap-edit-primary');
+  const orPrimary = document.getElementById('or-edit-primary');
+  if(apPrimary && orPrimary) apPrimary.value = orPrimary.value;
+  const apSup = document.getElementById('ap-edit-sup');
+  const orSup = document.getElementById('or-edit-sup');
+  if(apSup && orSup) apSup.value = orSup.value;
+  const apMph = document.getElementById('ap-edit-mph');
+  const orMph = document.getElementById('or-edit-mph');
+  if(apMph && orMph) apMph.value = orMph.value;
+  apSaveDay();
+  setTimeout(_syncOrFields, 200);
+}
+
+function orClearDay(){
+  const ds = document.getElementById('or-edit-date').value;
+  if(!ds){ toast('Select a date first','err'); return; }
+  const apDate = document.getElementById('ap-edit-date');
+  if(apDate) apDate.value = ds;
+  apClearDay();
+  setTimeout(_syncOrFields, 200);
+}
+
+function orHandleMphChange(){
+  const orMph = document.getElementById('or-edit-mph');
+  const apMph = document.getElementById('ap-edit-mph');
+  if(orMph && apMph) apMph.value = orMph.value;
+  apHandleMphChange();
+  setTimeout(_syncOrFields, 100);
+}
+
+function orAddMajalis(){ 
+  const orMjSel = document.getElementById('or-mj-select');
+  const apMjSel = document.getElementById('ap-mj-select');
+  const orMjCus = document.getElementById('or-mj-custom');
+  const apMjCus = document.getElementById('ap-mj-custom');
+  if(orMjSel && apMjSel) apMjSel.value = orMjSel.value;
+  if(orMjCus && apMjCus) apMjCus.value = orMjCus.value;
+  const ds = document.getElementById('or-edit-date').value;
+  const apDate = document.getElementById('ap-edit-date');
+  if(apDate) apDate.value = ds;
+  apAddMajalis();
+  setTimeout(_syncOrFields, 200);
+}
+
+function orAddTraining(){
+  const ds = document.getElementById('or-edit-date').value;
+  const apDate = document.getElementById('ap-edit-date');
+  if(apDate) apDate.value = ds;
+  const orTrainee = document.getElementById('or-tr-trainee');
+  const orTrainer = document.getElementById('or-tr-trainer');
+  const apTrainee = document.getElementById('ap-tr-trainee');
+  const apTrainer = document.getElementById('ap-tr-trainer');
+  if(orTrainee && apTrainee) apTrainee.value = orTrainee.value;
+  if(orTrainer && apTrainer) apTrainer.value = orTrainer.value;
+  apAddTraining();
+  setTimeout(_syncOrFields, 200);
+}
 </script>
 </body>
 </html>
