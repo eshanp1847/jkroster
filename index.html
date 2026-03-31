@@ -3118,8 +3118,9 @@ function apCreateUser(){
   toast(`User "${display}" created!`);
 }
 
-function apLoadDayFields(){
-  const ds = document.getElementById('ap-edit-date').value;
+function apLoadDayFields(prefix){
+  prefix = prefix || 'ap-';
+  const ds = document.getElementById(prefix+'edit-date').value;
   if(!ds) return;
 
   const isFri = new Date(ds+'T12:00').getDay() === 5;
@@ -3128,19 +3129,19 @@ function apLoadDayFields(){
   const allVols = vols.slice().sort((a,b)=>a.name.localeCompare(b.name));
 
   // Populate JK dropdown
-  const jkSel = document.getElementById('ap-edit-primary');
+  const jkSel = document.getElementById(prefix+'edit-primary');
   jkSel.innerHTML = '<option value="">— Select volunteer —</option>' +
     allVols.map(v=>`<option value="${v.name}" ${ro._primary===v.name?'selected':''}>${v.name}</option>`).join('');
 
   // Populate SUP dropdown
-  const supSel = document.getElementById('ap-edit-sup');
+  const supSel = document.getElementById(prefix+'edit-sup');
   supSel.innerHTML = '<option value="">— None —</option>' +
     allVols.filter(v=>(v.roles||[]).includes('Supervisor')||v.type==='Supervisor').map(v=>`<option value="${v.name}" ${ro._sup===v.name?'selected':''}>${v.name}</option>`).join('');
 
   // MPH dropdown — only relevant on Fridays
   // ── MPH — single dropdown: assign volunteer OR cancel duty ──
-  const mphSel = document.getElementById('ap-edit-mph');
-  const mphCurrent = document.getElementById('ap-mph-current');
+  const mphSel = document.getElementById(prefix+'edit-mph');
+  const mphCurrent = document.getElementById(prefix+'mph-current');
   if(mphSel){
     mphSel.disabled = false;
     // Derive mph from roles directly (v.mph may be stale)
@@ -3172,7 +3173,7 @@ function apLoadDayFields(){
       sel.style.height = '';
     }
   });
-  const notes = document.getElementById('ap-edit-notes');
+  const notes = document.getElementById(prefix+'edit-notes');
   const mj = majalisEvs.find(e=>e.date===ds);
   const tr = trainings.find(e=>e.date===ds);
   let info = [];
@@ -3183,55 +3184,61 @@ function apLoadDayFields(){
   notes.textContent = info.join(' · ');
 
   // Auto-fill date display in majalis section
-  const mjDateDisplay = document.getElementById('ap-mj-date-display');
+  const mjDateDisplay = document.getElementById(prefix+'mj-date-display');
   if(mjDateDisplay) mjDateDisplay.value = fd(ds);
 
   // Majalis current state
-  const mjCurrent = document.getElementById('ap-mj-current');
+  const mjCurrent = document.getElementById(prefix+'mj-current');
   if(mjCurrent){
     if(mj){
-      mjCurrent.innerHTML = `<span style="color:#90CAF9;font-weight:600;">${esc(mj.name)}</span> &nbsp;<button onclick="apRemoveMajalis('${mj.id}')" style="background:rgba(192,57,43,.12);color:#f88;border:1px solid rgba(192,57,43,.3);border-radius:4px;padding:1px 7px;font-size:10px;cursor:pointer;">✕ Remove</button>`;
+      mjCurrent.innerHTML = `<span style="color:#90CAF9;font-weight:600;">${esc(mj.name)}</span> &nbsp;<button onclick="apRemoveMajalis('${mj.id}','${prefix}')" style="background:rgba(192,57,43,.12);color:#f88;border:1px solid rgba(192,57,43,.3);border-radius:4px;padding:1px 7px;font-size:10px;cursor:pointer;">✕ Remove</button>`;
     } else {
       mjCurrent.innerHTML = '<span style="color:#4A6A80;font-style:italic;">No majalis on this day.</span>';
     }
   }
   // Pre-fill majalis select if one exists
-  const mjSel = document.getElementById('ap-mj-select');
+  const mjSel = document.getElementById(prefix+'mj-select');
   if(mjSel && mj){
     if(Object.keys(MJ_ABBR).includes(mj.name)) mjSel.value = mj.name;
-    else { mjSel.value='__custom__'; handleApMjSelect(); document.getElementById('ap-mj-custom').value=mj.name; }
-  } else if(mjSel){ mjSel.value=''; document.getElementById('ap-mj-custom').style.display='none'; }
+    else { mjSel.value='__custom__'; handleApMjSelect(); document.getElementById(prefix+'mj-custom').value=mj.name; }
+  } else if(mjSel){ mjSel.value=''; document.getElementById(prefix+'mj-custom').style.display='none'; }
 
   // Training current state
-  const trCurrent = document.getElementById('ap-tr-current');
-  const trDeleteWrap = document.getElementById('ap-tr-delete-wrap');
+  const trCurrent = document.getElementById(prefix+'tr-current');
+  const trDeleteWrap = document.getElementById(prefix+'tr-delete-wrap');
   if(trCurrent){
     if(tr){
       trCurrent.innerHTML = `<span style="color:#FCD34D;font-weight:600;">🎓 ${esc(tr.trainee)}</span> <span style="color:#4A6A80;">with</span> <span style="color:#FCD34D;font-weight:600;">${esc(tr.trainer)}</span>`;
       if(trDeleteWrap) trDeleteWrap.style.display='block';
-      document.getElementById('ap-tr-trainee').value = tr.trainee||'';
-      document.getElementById('ap-tr-trainer').value = tr.trainer||'';
+      document.getElementById(prefix+'tr-trainee').value = tr.trainee||'';
+      document.getElementById(prefix+'tr-trainer').value = tr.trainer||'';
     } else {
       trCurrent.innerHTML = '<span style="color:#4A6A80;font-style:italic;">No training on this day.</span>';
       if(trDeleteWrap) trDeleteWrap.style.display='none';
-      document.getElementById('ap-tr-trainee').value='';
-      document.getElementById('ap-tr-trainer').value='';
+      document.getElementById(prefix+'tr-trainee').value='';
+      document.getElementById(prefix+'tr-trainer').value='';
     }
   }
 }
 
 function handleApMjSelect(){
-  const sel = document.getElementById('ap-mj-select');
-  const custom = document.getElementById('ap-mj-custom');
+  const sel = document.getElementById(prefix+'mj-select');
+  const custom = document.getElementById(prefix+'mj-custom');
   if(sel.value==='__custom__'){ custom.style.display='block'; custom.focus(); }
   else custom.style.display='none';
 }
 
-function apAddMajalis(){
-  const ds = document.getElementById('ap-edit-date').value;
+function apAddMajalisWithPrefix(prefix){
+  prefix = prefix || 'ap-';
+  apAddMajalis(prefix);
+}
+
+function apAddMajalis(prefix){
+  prefix = prefix || 'ap-';
+  const ds = document.getElementById(prefix+'edit-date').value;
   if(!ds){ toast('Pick a date first','err'); return; }
-  const sel = document.getElementById('ap-mj-select');
-  const custom = document.getElementById('ap-mj-custom');
+  const sel = document.getElementById(prefix+'mj-select');
+  const custom = document.getElementById(prefix+'mj-custom');
   const name = sel.value==='__custom__' ? custom.value.trim() : sel.value;
   if(!name || sel.value===''){ toast('Select or enter a Majalis name','err'); return; }
 
@@ -3244,7 +3251,7 @@ function apAddMajalis(){
   dbSaveMajalis(newMj);
   auditLog(`Admin added Majalis: ${name}`, 'majalis', `Date: ${ds} via Admin Panel`);
   renderMajalisCards(); renderUpcoming(); updateStats(); autoRoster();
-  apLoadDayFields();
+  apLoadDayFields(prefix);
   // Auto-add PBS for Chandraat before final render
   if(name.toLowerCase().includes('chandraat')){
     var pbsD=new Date(ds+'T12:00'); pbsD.setDate(pbsD.getDate()+8);
@@ -3256,30 +3263,37 @@ function apAddMajalis(){
     }
   }
   // Reset form fields
-  const _mjSel = document.getElementById('ap-mj-select');
-  const _mjCus = document.getElementById('ap-mj-custom');
+  const _mjSel = document.getElementById(prefix+'mj-select');
+  const _mjCus = document.getElementById(prefix+'mj-custom');
   if(_mjSel) _mjSel.value='';
   if(_mjCus){ _mjCus.value=''; _mjCus.style.display='none'; }
   renderMajalisCards(); renderUpcoming(); updateStats(); autoRoster();
-  apLoadDayFields();
+  apLoadDayFields(prefix);
   toast('Majalis saved for '+fd(ds));
 }
 
-function apRemoveMajalis(id){
+function apRemoveMajalis(id, prefix){
+  prefix = prefix || 'ap-';
   const mj = majalisEvs.find(e=>e.id==id);
   majalisEvs = majalisEvs.filter(e=>e.id!=id);
   dbDeleteMajalis(id);
   auditLog(`Admin removed Majalis: ${mj?mj.name:id}`, 'majalis', `Date: ${mj?mj.date:''} via Admin Panel`);
   renderMajalisCards(); renderUpcoming(); updateStats(); autoRoster();
-  apLoadDayFields();
+  apLoadDayFields(prefix);
   toast('Majalis removed.');
 }
 
-function apAddTraining(){
-  const ds = document.getElementById('ap-edit-date').value;
+function apAddTrainingWithPrefix(prefix){
+  prefix = prefix || 'ap-';
+  apAddTraining(prefix);
+}
+
+function apAddTraining(prefix){
+  prefix = prefix || 'ap-';
+  const ds = document.getElementById(prefix+'edit-date').value;
   if(!ds){ toast('Pick a date first','err'); return; }
-  const trainee = document.getElementById('ap-tr-trainee').value.trim();
-  const trainer = document.getElementById('ap-tr-trainer').value.trim();
+  const trainee = document.getElementById(prefix+'tr-trainee').value.trim();
+  const trainer = document.getElementById(prefix+'tr-trainer').value.trim();
   if(!trainee){ toast('Enter a trainee name','err'); return; }
   if(!trainer){ toast('Enter a trainer name','err'); return; }
 
@@ -3292,12 +3306,13 @@ function apAddTraining(){
   dbSaveTraining(newTr);
   auditLog(`Admin added Training: ${trainee} with ${trainer}`, 'training', `Date: ${ds} via Admin Panel`);
   renderTrainingCards(); autoRoster();
-  apLoadDayFields();
+  apLoadDayFields(prefix);
   toast(`Training added to ${fd(ds)}`);
 }
 
-function apRemoveTraining(){
-  const ds = document.getElementById('ap-edit-date').value;
+function apRemoveTraining(prefix){
+  prefix = prefix || 'ap-';
+  const ds = document.getElementById(prefix+'edit-date').value;
   if(!ds) return;
   const tr = trainings.find(e=>e.date===ds);
   if(!tr){ toast('No training on this day','err'); return; }
@@ -3305,8 +3320,65 @@ function apRemoveTraining(){
   dbDeleteTraining(tr.id);
   auditLog(`Admin removed Training: ${tr.trainee}`, 'training', `Date: ${ds} via Admin Panel`);
   renderTrainingCards(); autoRoster();
-  apLoadDayFields();
+  apLoadDayFields(prefix);
   toast('Training removed.');
+}
+
+function apSaveDayWithPrefix(prefix){
+  prefix = prefix || 'ap-';
+  const ds = document.getElementById(prefix+'edit-date').value;
+  if(!ds){ toast('Select a date first','err'); return; }
+  const primary = document.getElementById(prefix+'edit-primary').value;
+  const sup     = document.getElementById(prefix+'edit-sup').value;
+  const mph     = document.getElementById(prefix+'edit-mph') ? document.getElementById(prefix+'edit-mph').value : '';
+
+  if(!primary){ toast('Select a JK volunteer','err'); return; }
+
+  const entry = {
+    _primary: primary,
+    _sup:     sup || '',
+    _manual:  true,
+    _auto:    false,
+  };
+
+  // Handle MPH dropdown
+  if(mph === '__cancel__'){
+    entry._mph_removed = true;
+    entry._mph_manual = true;
+  } else if(mph && mph !== ''){
+    entry._mph_primary = mph;
+    entry._mph_manual = true;
+    delete entry._mph_removed;
+  } else {
+    const ds2 = ds;
+    if(roster[ds2]){
+      if(roster[ds2]._mph_primary) entry._mph_primary = roster[ds2]._mph_primary;
+      if(roster[ds2]._mph_removed) entry._mph_removed = roster[ds2]._mph_removed;
+      if(roster[ds2]._mph_manual) entry._mph_manual = roster[ds2]._mph_manual;
+    }
+  }
+
+  roster[ds] = entry;
+
+  const dateObj = new Date(ds+'T12:00');
+  calMo = dateObj.getMonth();
+  calYr = dateObj.getFullYear();
+  sessionStorage.setItem('jk_calMo', calMo);
+  sessionStorage.setItem('jk_calYr', calYr);
+
+  autoRoster();
+  pauseRealtime(5000);
+  dbSaveRosterDay(ds, entry);
+
+  auditLog('Manual override: '+ds, 'roster',
+    'JK: '+primary+(sup?' · SUP: '+sup:'')+(mph==='__cancel__'?' · MPH: CANCELLED':mph?' · MPH: '+mph:''));
+
+  apLoadDayFields(prefix);
+  toast('\u2713 Override saved — '+primary+' on '+fd(ds));
+}
+
+function apSaveDay(){
+  apSaveDayWithPrefix('ap-');
 }
 
 function apSaveDay(){
@@ -3813,14 +3885,7 @@ function showSyncPulse(icon){
 
 // ── Override page shims — map or- IDs to the ap- functions ──
 function orLoadFields(){
-  const ds = document.getElementById('or-edit-date').value;
-  if(!ds) return;
-  // Mirror date into ap- field so apLoadDayFields works
-  const apDate = document.getElementById('ap-edit-date');
-  if(apDate) apDate.value = ds;
-  apLoadDayFields();
-  // Now copy populated values back to or- fields
-  _syncOrFields();
+  apLoadDayFields('or-');
 }
 
 function _syncOrFields(){
@@ -3857,67 +3922,49 @@ function _syncOrFields(){
 }
 
 function orSaveDay(){
-  // Copy or- values into ap- fields, then call apSaveDay
-  const ds = document.getElementById('or-edit-date').value;
-  if(!ds){ toast('Select a date first','err'); return; }
-  const apDate = document.getElementById('ap-edit-date');
-  if(apDate) apDate.value = ds;
-  const apPrimary = document.getElementById('ap-edit-primary');
-  const orPrimary = document.getElementById('or-edit-primary');
-  if(apPrimary && orPrimary) apPrimary.value = orPrimary.value;
-  const apSup = document.getElementById('ap-edit-sup');
-  const orSup = document.getElementById('or-edit-sup');
-  if(apSup && orSup) apSup.value = orSup.value;
-  const apMph = document.getElementById('ap-edit-mph');
-  const orMph = document.getElementById('or-edit-mph');
-  if(apMph && orMph) apMph.value = orMph.value;
-  apSaveDay();
-  setTimeout(_syncOrFields, 200);
+  apSaveDayWithPrefix('or-');
 }
 
 function orClearDay(){
   const ds = document.getElementById('or-edit-date').value;
   if(!ds){ toast('Select a date first','err'); return; }
-  const apDate = document.getElementById('ap-edit-date');
-  if(apDate) apDate.value = ds;
-  apClearDay();
-  setTimeout(_syncOrFields, 200);
+  delete roster[ds];
+  pauseRealtime(3000);
+  dbSaveRosterDay(ds, null);
+  auditLog('Cleared override for '+ds, 'roster', 'Reverted to auto-roster');
+  autoRoster();
+  apLoadDayFields('or-');
+  toast('Override cleared — '+fd(ds)+' is back to auto');
 }
 
 function orHandleMphChange(){
-  const orMph = document.getElementById('or-edit-mph');
-  const apMph = document.getElementById('ap-edit-mph');
-  if(orMph && apMph) apMph.value = orMph.value;
-  apHandleMphChange();
-  setTimeout(_syncOrFields, 100);
+  // Just update status preview in the or- page
+  const val = document.getElementById('or-edit-mph') ? document.getElementById('or-edit-mph').value : '';
+  const mphCurrent = document.getElementById('or-mph-current');
+  if(!mphCurrent) return;
+  if(val === '__cancel__'){
+    mphCurrent.innerHTML = '<span style="color:#f88;font-weight:600;">✕ Will cancel MPH duty — click Save Roster to confirm</span>';
+  } else if(val){
+    mphCurrent.innerHTML = '<span style="color:#FCD34D;font-weight:600;">Will assign: '+val+' — click Save Roster to confirm</span>';
+  } else {
+    const ds = document.getElementById('or-edit-date') ? document.getElementById('or-edit-date').value : '';
+    const ro = roster[ds]||{};
+    if(ro._mph_removed){
+      mphCurrent.innerHTML = '<span style="color:#f88;font-weight:600;">✕ MPH duty cancelled for this day</span>';
+    } else if(ro._mph_primary){
+      mphCurrent.innerHTML = '<span style="color:#FCD34D;font-weight:600;">Currently: '+ro._mph_primary+'</span>';
+    } else {
+      mphCurrent.innerHTML = '<span style="color:#4A6A80;font-style:italic;">Not assigned.</span>';
+    }
+  }
 }
 
-function orAddMajalis(){ 
-  const orMjSel = document.getElementById('or-mj-select');
-  const apMjSel = document.getElementById('ap-mj-select');
-  const orMjCus = document.getElementById('or-mj-custom');
-  const apMjCus = document.getElementById('ap-mj-custom');
-  if(orMjSel && apMjSel) apMjSel.value = orMjSel.value;
-  if(orMjCus && apMjCus) apMjCus.value = orMjCus.value;
-  const ds = document.getElementById('or-edit-date').value;
-  const apDate = document.getElementById('ap-edit-date');
-  if(apDate) apDate.value = ds;
-  apAddMajalis();
-  setTimeout(_syncOrFields, 200);
+function orAddMajalis(){
+  apAddMajalisWithPrefix('or-');
 }
 
 function orAddTraining(){
-  const ds = document.getElementById('or-edit-date').value;
-  const apDate = document.getElementById('ap-edit-date');
-  if(apDate) apDate.value = ds;
-  const orTrainee = document.getElementById('or-tr-trainee');
-  const orTrainer = document.getElementById('or-tr-trainer');
-  const apTrainee = document.getElementById('ap-tr-trainee');
-  const apTrainer = document.getElementById('ap-tr-trainer');
-  if(orTrainee && apTrainee) apTrainee.value = orTrainee.value;
-  if(orTrainer && apTrainer) apTrainer.value = orTrainer.value;
-  apAddTraining();
-  setTimeout(_syncOrFields, 200);
+  apAddTrainingWithPrefix('or-');
 }
 </script>
 </body>
