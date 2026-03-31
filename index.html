@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JK Roster — Auckland Jamatkhana</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -119,7 +119,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
 }
 .r-hdr-row{display:flex;align-items:center;justify-content:space-between;position:relative;}
 .r-title .big{
-  font-family:'Barlow',sans-serif;font-size:48px;font-weight:900;
+  font-family:'Barlow',sans-serif;font-size:52px;font-weight:900;
   text-transform:uppercase;line-height:1;letter-spacing:-1px;
   background:linear-gradient(135deg,#fff 20%,#90CAF9 60%,#4FC3F7 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
@@ -165,133 +165,126 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
 /* Column headers */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);}
 .col-hdr{
-  background:linear-gradient(180deg,#0C1E3A 0%,#091528 100%);
-  padding:10px 8px;text-align:center;
-  font-family:'Barlow',sans-serif;font-size:10px;font-weight:800;
-  text-transform:uppercase;letter-spacing:.16em;color:#6A9FBF;
-  border-right:1px solid rgba(79,195,247,0.06);
-  border-bottom:2px solid rgba(79,195,247,0.12);
+  background:#060F1E;
+  padding:7px 6px;text-align:center;
+  font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;color:#5A8AAA;
+  border-right:1px solid rgba(79,195,247,0.07);
+  border-bottom:1px solid rgba(79,195,247,0.15);
 }
 .col-hdr:last-child{border-right:none;}
-.col-hdr.fri{color:#4FC3F7;letter-spacing:.14em;}
+.col-hdr.fri{color:#4FC3F7;}
 
 /* ── CELL ── */
 .cell{
   background:#060F1E;
-  border-right:1px solid rgba(79,195,247,0.07);
-  border-bottom:1px solid rgba(79,195,247,0.07);
-  padding:8px 10px 10px;
-  min-height:110px;
+  border-right:1px solid rgba(79,195,247,0.08);
+  border-bottom:1px solid rgba(79,195,247,0.08);
+  padding:7px 9px 9px;
+  min-height:100px;
   position:relative;
   cursor:pointer;
-  transition:all .18s ease;
+  transition:background .15s ease;
   overflow:hidden;
 }
-.cell::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(79,195,247,0.025) 0%,transparent 55%);
-  pointer-events:none;
-}
 .cell:last-child,.cell:nth-child(7n){border-right:none;}
-.cell:hover{background:#0A1A30;box-shadow:inset 0 0 0 1px rgba(79,195,247,0.18);}
-.cell.other{background:#030A14;pointer-events:none;}
-.cell.other .cell-inner{opacity:.10;}
+.cell:hover{background:#091828;}
+.cell.other{background:#040B18;pointer-events:all;cursor:pointer;}
+.cell.other .cell-inner{opacity:.55;}
 
-/* Majalis — deep ruby-navy, bleeds from the dark base */
+/* Majalis — subtle ruby tint */
 .cell.ev-jk{
-  background:linear-gradient(160deg,#060F1E 0%,#150810 35%,#2A0A14 65%,#1A0810 100%);
-  border-color:rgba(185,28,60,0.35)!important;
-  box-shadow:inset 0 1px 0 rgba(185,28,60,0.12),inset 0 0 30px rgba(120,10,30,0.15);
+  background:linear-gradient(160deg,#070E1C 0%,#180910 55%,#200A12 100%);
+  border-color:rgba(185,28,60,0.3)!important;
 }
-.cell.ev-jk::after{
-  background:linear-gradient(180deg,rgba(185,28,60,0.06) 0%,transparent 60%);
-}
-
-/* Training — warm amber-navy, bleeds from the dark base */
+/* Training — subtle amber tint */
 .cell.ev-training{
-  background:linear-gradient(160deg,#060F1E 0%,#0E100A 30%,#1C1505 60%,#120F08 100%);
-  border-color:rgba(180,130,40,0.32)!important;
-  box-shadow:inset 0 1px 0 rgba(200,150,40,0.10),inset 0 0 30px rgba(140,100,10,0.10);
+  background:linear-gradient(160deg,#070E1C 0%,#130F07 55%,#1A1205 100%);
+  border-color:rgba(180,130,40,0.28)!important;
 }
-.cell.ev-training::after{
-  background:linear-gradient(180deg,rgba(200,150,40,0.05) 0%,transparent 60%);
-}
-
 .cell.today{
-  background:linear-gradient(155deg,#071E44 0%,#0A2858 100%);
-  box-shadow:inset 0 0 0 2px rgba(79,195,247,0.55),0 0 18px rgba(79,195,247,0.07);
-}
-.cell.today::after{background:linear-gradient(180deg,rgba(79,195,247,0.08) 0%,transparent 50%);}
-
-/* Corner event badge */
-.corner-badge{
-  position:absolute;top:10px;right:10px;
-  font-family:'Barlow',sans-serif;font-size:7.5px;font-weight:800;
-  text-transform:uppercase;letter-spacing:.07em;
-  padding:3px 9px;border-radius:20px;
-  white-space:nowrap;max-width:105px;
-  overflow:hidden;text-overflow:ellipsis;
-}
-.corner-badge.jk-badge{
-  background:rgba(21,101,192,0.25);
-  color:#90CAF9;
-  border:1px solid rgba(79,195,247,0.3);
-}
-.corner-badge.mph-badge{
-  background:linear-gradient(135deg,#5B21B6,#7C3AED);
-  color:#EDE9FE;
-  box-shadow:0 2px 8px rgba(124,58,237,0.4);
+  box-shadow:inset 0 0 0 2px rgba(79,195,247,0.5);
+  background:linear-gradient(155deg,#071C40 0%,#092450 100%);
 }
 
-/* Day number */
+/* ── CIRCLE BADGE (top-right corner) ── */
+.cell-badge{
+  position:absolute;top:7px;right:7px;
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow',sans-serif;font-weight:900;
+  flex-shrink:0;letter-spacing:-.3px;
+  font-size:10px;
+}
+.cell-badge.badge-jk{
+  background:linear-gradient(135deg,#0D2A5A,#1565C0);
+  border:1px solid rgba(79,195,247,0.45);
+  color:#E8F4FD;
+}
+.cell-badge.badge-k{
+  background:linear-gradient(135deg,rgba(6,78,59,0.7),rgba(16,120,80,0.7));
+  border:1px solid rgba(16,185,129,0.5);
+  color:#6EE7B7;
+}
+.cell-badge.badge-tr{
+  background:linear-gradient(135deg,#4A2000,#8B4500);
+  border:1px solid rgba(200,130,30,0.45);
+  color:#FCD34D;
+  font-size:7px;
+}
+
+/* ── DAY NUMBER ── */
 .dn{
-  font-family:'Barlow',sans-serif;font-size:22px;font-weight:900;
-  color:#3E6A88;line-height:1;margin-bottom:6px;letter-spacing:-1px;
+  font-family:'Barlow',sans-serif;font-size:18px;font-weight:900;
+  color:#3E6A88;line-height:1;margin-bottom:5px;letter-spacing:-.5px;
 }
 .cell:hover .dn{color:#5A90B8;}
-.cell.today .dn{color:#4FC3F7;text-shadow:0 0 18px rgba(79,195,247,0.35);}
+.cell.today .dn{color:#4FC3F7;}
 .cell.other .dn{color:#18293A;}
-.cell.ev-jk .dn{color:#C06070;}
-.cell.ev-training .dn{color:#A88840;}
+.cell.ev-jk .dn{color:#A05565;}
+.cell.ev-training .dn{color:#8A7030;}
 
 /* ── DUTY BLOCK ── */
-.duty{margin-top:2px;}
+.duty{margin-top:0;}
 .duty-lbl{
   font-family:'DM Sans',sans-serif;
-  font-size:6.5px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.14em;
-  color:#4A8FAE;
-  border-left:2px solid #2A6080;
+  font-size:7px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:#4A7A90;
+  border-left:2px solid #2A5A70;
   padding-left:5px;
-  margin-bottom:5px;line-height:1.2;
+  margin-bottom:4px;line-height:1;
 }
 .duty-lbl.mph-lbl{color:#7C3AED;border-left-color:#5B21B6;}
-
 .duty-name{
-  font-family:'Barlow',sans-serif;
-  font-size:14px;font-weight:800;
-  color:#F0F8FF;line-height:1.2;
-  display:flex;align-items:center;gap:5px;
-  text-shadow:0 1px 3px rgba(0,0,0,0.4);
+  font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:700;
+  color:#E4F2FC;line-height:1.25;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:100%;
+  display:block;
 }
-.chk{color:#4FC3F7;font-size:11px;flex-shrink:0;}
-
+.chk{color:#4FC3F7;font-size:9px;flex-shrink:0;margin-left:2px;}
 .duty-unassigned{
-  font-family:'Barlow',sans-serif;
-  font-size:13px;font-weight:700;font-style:italic;
-  color:#3A6A88;line-height:1.2;
+  font-family:'DM Sans',sans-serif;
+  font-size:10px;font-weight:500;font-style:italic;
+  color:#3A5A70;line-height:1.2;
+}
+.duty-sep{
+  border:none;border-top:1px solid rgba(79,195,247,0.1);
+  margin:4px 0 3px;
 }
 
 .sup-tag{
   display:inline-block;
-  background:rgba(21,101,192,0.15);
-  color:#7AAECB;
+  background:rgba(21,101,192,0.12);
+  color:#6A9EC0;
   font-family:'DM Sans',sans-serif;
-  font-size:7.5px;font-weight:700;
+  font-size:7px;font-weight:700;
   text-transform:uppercase;letter-spacing:.07em;
-  padding:2px 6px;border-radius:4px;
+  padding:2px 6px;border-radius:3px;
   margin-top:3px;
-  border:1px solid rgba(21,101,192,0.2);
+  border:1px solid rgba(21,101,192,0.18);
 }
 
 /* ── ROLE PILLS (Discord-style) ── */
@@ -426,14 +419,14 @@ select[size]:not([size="1"]) option:checked{
 /* Event cards */
 .ev-card{background:var(--ds2);border:1px solid var(--db);border-radius:8px;display:flex;align-items:center;gap:11px;padding:10px 13px;margin-bottom:6px;}
 /* Majalis list card */
-.mj-list-card{background:var(--ds2);border:1px solid var(--db);border-radius:9px;display:flex;align-items:center;gap:14px;padding:13px 15px;margin-bottom:7px;transition:border-color .15s;}
+.mj-list-card{background:var(--ds2);border:1px solid var(--db);border-radius:10px;display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:8px;transition:border-color .15s;}
 .mj-list-card:hover{border-color:rgba(79,195,247,.4);}
-.mj-list-date{background:linear-gradient(135deg,#0B2A5A,#1565C0);border-radius:8px;padding:7px 11px;text-align:center;flex-shrink:0;min-width:52px;}
-.mj-list-mo{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.7);}
-.mj-list-d{font-family:'Barlow',sans-serif;font-size:20px;font-weight:900;color:#fff;line-height:1.1;}
+.mj-list-date{background:linear-gradient(135deg,#0B2A5A,#1565C0);border-radius:50%;width:52px;height:52px;padding:0;text-align:center;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.mj-list-mo{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.65);line-height:1;}
+.mj-list-d{font-family:'Barlow',sans-serif;font-size:22px;font-weight:900;color:#fff;line-height:1;}
 .mj-list-yr{font-size:9px;color:rgba(255,255,255,.5);}
 .mj-list-body{flex:1;}
-.mj-list-name{font-family:'Barlow',sans-serif;font-size:15px;font-weight:800;color:#E8F4FD;margin-bottom:5px;}
+.mj-list-name{font-family:'Barlow',sans-serif;font-size:16px;font-weight:800;color:#E8F4FD;margin-bottom:5px;}
 .mj-list-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .mj-type-tag{background:rgba(79,195,247,.12);color:#4FC3F7;border:1px solid rgba(79,195,247,.25);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:2px 8px;border-radius:4px;}
 .ev-card:hover{border-color:rgba(79,195,247,.4);}
@@ -688,6 +681,7 @@ tr:hover td{background:var(--ds2);}
       <div class="nav-item ao" data-page="volunteers" onclick="nav(this)"><span class="ni">👥</span> User Management</div>
       <div class="nav-item ao" data-page="events" onclick="nav(this)"><span class="ni">🕌</span> Add-ons</div>
       <div class="nav-item ao" data-page="audit" onclick="nav(this)"><span class="ni">🔍</span> Audit Logs</div>
+      <div class="nav-item ao" data-page="override" onclick="nav(this)"><span class="ni">✏️</span> Manual Override</div>
       <div class="nav-item ep-only" data-page="adminpanel" onclick="nav(this)" style="display:none;"><span class="ni">⚙️</span> Admin Panel</div>
     </nav>
     <div class="sb-bot">
@@ -764,13 +758,13 @@ tr:hover td{background:var(--ds2);}
 
         <!-- Grid: headers + cells -->
         <div class="cal-grid">
-          <div class="col-hdr">Sunday</div>
           <div class="col-hdr">Monday</div>
           <div class="col-hdr">Tuesday</div>
           <div class="col-hdr">Wednesday</div>
           <div class="col-hdr">Thursday</div>
           <div class="col-hdr fri">Friday</div>
           <div class="col-hdr">Saturday</div>
+          <div class="col-hdr">Sunday</div>
           <div id="calBody" style="display:contents;"></div>
         </div>
 
@@ -921,6 +915,111 @@ tr:hover td{background:var(--ds2);}
 
 
     <!-- ADMIN PANEL — eshan.punjwani only -->
+
+    <!-- ── MANUAL OVERRIDE PAGE (all admins) ── -->
+    <div class="page ao" id="page-override">
+      <div class="ph">
+        <div><h1>✏️ Manual Override</h1><p>Override roster assignments for specific dates</p></div>
+      </div>
+      <div style="padding:20px 24px;">
+<div class="iv-panel" style="margin-bottom:20px;">
+        <div class="iv-ph" style="background:linear-gradient(135deg,#3B1A6B,#6D28D9);">
+          <span>✏️</span> Edit Specific Day
+        </div>
+        <div class="iv-pb">
+
+          <!-- Date picker -->
+          <div style="margin-bottom:14px;">
+            <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Date</div>
+            <input type="date" id="or-edit-date" class="wi" style="max-width:220px;border-color:rgba(109,40,217,0.4);" onchange="orLoadFields()">
+            <div id="or-edit-notes" style="font-size:11px;color:#6D4BA0;margin-top:6px;font-style:italic;min-height:16px;"></div>
+          </div>
+
+          <!-- ── ROSTER SECTION ── -->
+          <div class="add-form" style="background:linear-gradient(160deg,#0D0618,#1A0A38);border:1px solid rgba(109,40,217,0.35);margin-bottom:12px;">
+            <div style="font-size:10px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">📅 Roster Override</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">JK Volunteer</div>
+                <select id="or-edit-primary" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(109,40,217,0.4);">
+                  <option value="">— Auto-assigned —</option>
+                </select>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Supervisor (SUP tag)</div>
+                <select id="or-edit-sup" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(109,40,217,0.4);">
+                  <option value="">— None —</option>
+                </select>
+              </div>
+              <div id="or-edit-mph-wrap" style="grid-column:1/-1;">
+                <div style="font-size:9px;font-weight:700;color:#F59E0B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">MPH Congregation</div>
+                <div id="or-mph-current" style="font-size:11px;color:#4A6A80;font-style:italic;margin-bottom:7px;"></div>
+                <select id="or-edit-mph" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(245,158,11,0.4);width:100%;" onchange="orHandleMphChange()">
+                  <option value="">— Select volunteer —</option>
+                  <option value="__cancel__" style="color:#f88;font-weight:700;">✕ Cancel MPH Duty for this date</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-bl" style="background:linear-gradient(135deg,#4C1D95,#6D28D9);" onclick="orSaveDay()">💾 Save Roster</button>
+              <button class="btn btn-ol" onclick="orClearDay()">✕ Clear Override</button>
+            </div>
+          </div>
+
+          <!-- ── MAJALIS SECTION ── -->
+          <div class="add-form" style="background:linear-gradient(160deg,#060F1E,#0C2040);border:1px solid rgba(79,195,247,0.25);margin-bottom:12px;">
+            <div style="font-size:10px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">🕌 Majalis for this Day</div>
+            <div id="or-mj-current" style="font-size:11px;color:#4A6A80;margin-bottom:10px;font-style:italic;">No majalis on this day.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Majalis Name</div>
+                <select id="or-mj-select" class="ws" style="background:#071628;color:#E8F4FD;border:1px solid rgba(79,195,247,0.3);" onchange="handleApMjSelect()">
+                  <option value="">— Select type —</option>
+                  <option value="Chandraat">Chandraat</option>
+                  <option value="Student">Student</option>
+                  <option value="Paanch Baar Saal">Paanch Baar Saal</option>
+                  <option value="Bait-ul Khayal">Bait-ul Khayal</option>
+                  <option value="Chandraat (K)">Chandraat (K)</option>
+                  <option value="Student (K)">Student (K)</option>
+                  <option value="Paanch Baar Saal (K)">Paanch Baar Saal (K)</option>
+                  <option value="Bait-ul Khayal (K)">Bait-ul Khayal (K)</option>
+                  <option value="__custom__">✏️ Custom…</option>
+                </select>
+                <input type="text" id="or-mj-custom" placeholder="Custom name…" class="wi" style="display:none;margin-top:5px;border-color:rgba(79,195,247,0.3);">
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Date (auto-filled)</div>
+                <input type="text" id="or-mj-date-display" class="wi" style="border-color:rgba(79,195,247,0.2);color:#4A6A80;" readonly placeholder="Pick a date above first">
+              </div>
+              <button onclick="orAddMajalis()" style="height:38px;padding:0 14px;background:linear-gradient(135deg,#0B3A6B,#1565C0);color:#fff;border:none;border-radius:var(--r);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;">+ Add</button>
+            </div>
+          </div>
+
+          <!-- ── TRAINING SECTION ── -->
+          <div class="add-form" style="background:linear-gradient(160deg,#0E100A,#1C1505);border:1px solid rgba(200,150,40,0.25);">
+            <div style="font-size:10px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">🎓 Training for this Day</div>
+            <div id="or-tr-current" style="font-size:11px;color:#4A6A80;margin-bottom:10px;font-style:italic;">No training on this day.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Trainee</div>
+                <input type="text" id="or-tr-trainee" placeholder="Trainee name…" class="wi" style="border-color:rgba(200,150,40,0.3);">
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Trainer</div>
+                <input type="text" id="or-tr-trainer" placeholder="Trainer name…" class="wi" style="border-color:rgba(200,150,40,0.3);">
+              </div>
+              <button onclick="orAddTraining()" style="height:38px;padding:0 14px;background:linear-gradient(135deg,#92400E,#B45309);color:#FCD34D;border:none;border-radius:var(--r);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;">+ Add</button>
+            </div>
+            <div id="or-tr-delete-wrap" style="margin-top:8px;display:none;">
+              <button onclick="apRemoveTraining()" style="background:rgba(192,57,43,.12);color:#f88;border:1px solid rgba(192,57,43,.3);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;">🗑 Remove Training from this Day</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      </div>
+    </div>
+
     <div class="page ep-only" id="page-adminpanel" style="display:none;">
       <div class="ph">
         <div><h1>⚙️ Admin Panel</h1><p>System administration — restricted access</p></div>
@@ -950,7 +1049,7 @@ tr:hover td{background:var(--ds2);}
                 <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Year</div>
                 <input type="number" id="ap-year" class="wi" style="width:100px;" min="2020" max="2099">
               </div>
-              <button class="btn btn-bl" onclick="apSetMonth()">Set Month</button>
+              <button class="btn btn-bl" onclick="apSetMonth().catch(()=>{})" id="ap-setmonth-btn">Set Month</button>
             </div>
           </div>
         </div>
@@ -1036,9 +1135,11 @@ tr:hover td{background:var(--ds2);}
                 </select>
               </div>
               <div id="ap-edit-mph-wrap" style="grid-column:1/-1;">
-                <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">MPH Volunteer <span style="color:#4A3A60;font-weight:400;">(Fridays only)</span></div>
-                <select id="ap-edit-mph" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(109,40,217,0.4);">
-                  <option value="">— Auto-assigned —</option>
+                <div style="font-size:9px;font-weight:700;color:#F59E0B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">MPH Congregation</div>
+                <div id="ap-mph-current" style="font-size:11px;color:#4A6A80;font-style:italic;margin-bottom:7px;"></div>
+                <select id="ap-edit-mph" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(245,158,11,0.4);width:100%;" onchange="apHandleMphChange()">
+                  <option value="">— Select volunteer —</option>
+                  <option value="__cancel__" style="color:#f88;font-weight:700;">✕ Cancel MPH Duty for this date</option>
                 </select>
               </div>
             </div>
@@ -1130,6 +1231,11 @@ const MO=['January','February','March','April','May','June','July','August','Sep
 const MOS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 let vols=[], majalisEvs=[], trainings=[], roster={};
+function pauseRealtime(ms){
+  ms = ms || 800;
+  _realtimePaused = true;
+  setTimeout(function(){ _realtimePaused = false; }, ms);
+}
 function esc(s){
   if(!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -1199,13 +1305,24 @@ async function loadFromDB(){
       };
     });
     roster     = {};
-    (rR.data||[]).forEach(r=>{ roster[r.date] = r.data; });
+    (rR.data||[]).forEach(r=>{
+      const loaded = r.data || {};
+      // Preserve _manual flag — manually overridden slots must never be auto-overwritten
+      if(!loaded._manual && !loaded._auto && loaded._primary){
+        loaded._manual = true; // treat legacy manual entries as manual
+      }
+      roster[r.date] = loaded;
+      if(false && !roster[r.date]._auto && roster[r.date]._primary){
+        roster[r.date]._manual = true;
+      }
+    });
     // load trainings from majalis table with category='training'
     trainings  = majalisEvs.filter(e=>e.category==='training');
     majalisEvs = majalisEvs.filter(e=>e.category!=='training');
 
     console.log(`Loaded: ${vols.length} volunteers, ${majalisEvs.length} majalis, ${trainings.length} trainings, ${Object.keys(roster).length} roster days`);
     setSyncStatus('ok');
+    toast(`✓ Synced — ${vols.length} volunteers, ${majalisEvs.length} majalis, ${Object.keys(roster).length} roster entries`);
   } catch(e){
     console.error('DB load error:', e);
     setSyncStatus('error');
@@ -1307,10 +1424,10 @@ async function dbDeleteTraining(id){
 
 async function dbSaveRosterDay(date, data){
   if(!sb) return;
+  pauseRealtime(2000); // prevent echo from overwriting local state
   setSyncStatus('saving');
   try{
     if(data === null){
-      // Delete the row entirely
       const {error} = await sb.from('roster').delete().eq('date', date);
       if(error) throw error;
     } else {
@@ -1369,7 +1486,11 @@ async function saveMonthSetting(mo, yr){
       {onConflict:'key'}
     );
     if(error) throw error;
-  } catch(e){ console.warn('Could not save month setting:', e.message); }
+    console.log('Month saved to DB:', mo, yr);
+  } catch(e){
+    console.error('saveMonthSetting error:', e.message);
+    throw e;
+  }
 }
 
 /* ═══════════════════════════════════
@@ -1377,18 +1498,18 @@ async function saveMonthSetting(mo, yr){
 ═══════════════════════════════════ */
 
 async function loadUsersEarly(){
-  // Called on DOMContentLoaded so login always checks DB credentials
+  // Merge DB users INTO existing USERS — never wipe built-ins
   if(!sb) return;
   try{
     const {data,error} = await sb.from('app_users').select('*');
-    if(error || !data || !data.length) return;
-    const eshData = USERS['eshan.punjwani'];
-    USERS = {};
-    data.forEach(r=>{ USERS[r.username]={pw:r.pw,role:r.role,display:r.display}; });
-    if(!USERS['eshan.punjwani']) USERS['eshan.punjwani']=eshData;
+    if(error || !data || !data.length) return; // keep hardcoded USERS as fallback
+    // Merge: DB users override hardcoded, but hardcoded remain as fallback
+    data.forEach(r=>{
+      if(r.username && r.pw) USERS[r.username]={pw:r.pw,role:r.role||'volunteer',display:r.display||r.username};
+    });
     initRuntimeUsers();
-    console.log('Users pre-loaded for login:', Object.keys(USERS).length);
-  } catch(e){ console.warn('loadUsersEarly failed:', e.message); }
+    console.log('Users merged from DB for login:', Object.keys(USERS).length);
+  } catch(e){ console.warn('loadUsersEarly failed — using hardcoded credentials:', e.message); }
 }
 
 async function loadUsersFromDB(){
@@ -1397,14 +1518,15 @@ async function loadUsersFromDB(){
     const {data,error} = await sb.from('app_users').select('*');
     if(error) throw error;
     if(data && data.length){
-      const eshData = USERS['eshan.punjwani'];
-      USERS = {};
+      // Merge DB users — keep hardcoded as fallback, DB overrides
       data.forEach(r=>{
-        USERS[r.username] = {pw: r.pw, role: r.role, display: r.display};
+        if(r.username && r.pw) USERS[r.username]={pw:r.pw,role:r.role||'volunteer',display:r.display||r.username};
       });
-      if(!USERS['eshan.punjwani']) USERS['eshan.punjwani'] = eshData;
-      initRuntimeUsers();
-      console.log('Users loaded from DB:', Object.keys(USERS).length);
+    initRuntimeUsers();
+    console.log('Users loaded from DB:', Object.keys(USERS).length);
+    // Re-render user list if admin panel is currently open
+    const apList = document.getElementById('ap-userlist');
+    if(apList) renderApUserList();
     } else {
       // First time — seed DB with built-in users
       await seedUsersToDb();
@@ -1476,7 +1598,20 @@ function doLogin(){
     window.CU = { user: u, role: USERS[u].role, display: USERS[u].display };
     sessionStorage.setItem('jk_session', JSON.stringify(window.CU));
     applySession();
-    loadFromDB().then(()=>{ autoRoster(); renderAll(); loadAuditLogs(); startRealtime(); auditLog('Signed in', 'login', `Logged in as ${USERS[u].display}`); });
+    // Show loading state while DB loads
+    const body = document.getElementById('calBody');
+    if(body) body.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#4A7A98;font-family:DM Sans,sans-serif;font-size:14px;">⏳ Loading roster data…</div>';
+    loadFromDB().then(()=>{
+      autoRoster();
+      renderAll();
+      loadAuditLogs();
+      startRealtime();
+      auditLog('Signed in', 'login', `Logged in as ${USERS[u].display}`);
+    }).catch(e=>{
+      toast('Failed to load data: '+(e.message||e), 'err');
+      autoRoster();
+      renderAll();
+    });
   } else {
     err.textContent = 'Incorrect username or password.';
     document.getElementById('lp').value = '';
@@ -1519,7 +1654,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     try{
       window.CU = JSON.parse(saved);
       applySession();
-      loadFromDB().then(()=>{ autoRoster(); renderAll(); loadAuditLogs(); startRealtime(); });
+      // Show loading state
+      const body = document.getElementById('calBody');
+      if(body) body.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#4A7A98;font-family:DM Sans,sans-serif;font-size:14px;">⏳ Loading roster data…</div>';
+      loadFromDB().then(()=>{ autoRoster(); renderAll(); loadAuditLogs(); startRealtime(); }).catch(()=>{ autoRoster(); renderAll(); });
     } catch(e){ sessionStorage.removeItem('jk_session'); }
   }
 });
@@ -1611,97 +1749,100 @@ function renderCal(){
   const body=document.getElementById('calBody');
   body.innerHTML='';
 
-  const first=new Date(calYr,calMo,1).getDay();
-  const dim=new Date(calYr,calMo+1,0).getDate();
-  const prev=new Date(calYr,calMo,0).getDate();
+  // ── Build cells: week starts Monday, shows ALL days of the month ──
+  // Pad with days from previous/next month only as needed to complete rows.
+  // No full blank rows — trim any trailing row that is all padding.
   const td=new Date();
+  const dim=new Date(calYr,calMo+1,0).getDate();
+
+  // JS getDay(): 0=Sun,1=Mon...6=Sat
+  // We want Mon=col0, so shift: col = (getDay()+6)%7  (Mon->0, Tue->1...Sun->6)
+  const firstDate = new Date(calYr,calMo,1);
+  const firstCol  = (firstDate.getDay()+6)%7; // how many padding days before the 1st
+
   let cells=[];
-  for(let i=first-1;i>=0;i--) cells.push({d:prev-i,m:calMo-1,other:true});
-  for(let d=1;d<=dim;d++)     cells.push({d,m:calMo,other:false});
-  while(cells.length%7)       cells.push({d:cells.length-dim-first+1,m:calMo+1,other:true});
+  // Padding from previous month
+  const prevDim = new Date(calYr,calMo,0).getDate();
+  for(let i=firstCol-1;i>=0;i--){
+    const d=prevDim-i;
+    const mo=calMo===0?11:calMo-1;
+    const yr=calMo===0?calYr-1:calYr;
+    cells.push({d,m:mo,yr,pad:true});
+  }
+  // All days of this month
+  for(let d=1;d<=dim;d++) cells.push({d,m:calMo,yr:calYr,pad:false});
+  // Trailing padding — only enough to finish the current row, no full extra row
+  let trail=0;
+  while((cells.length+trail)%7!==0) trail++;
+  for(let i=1;i<=trail;i++){
+    const dt=new Date(calYr,calMo+1,i);
+    cells.push({d:dt.getDate(),m:dt.getMonth(),yr:dt.getFullYear(),pad:true});
+  }
 
   cells.forEach(c=>{
-    // compute date string (careful with month overflow)
-    const yr2=c.m<0?calYr-1:(c.m>11?calYr+1:calYr);
-    const mo2=c.m<0?11:(c.m>11?0:c.m);
-    const ds=`${yr2}-${String(mo2+1).padStart(2,'0')}-${String(c.d).padStart(2,'0')}`;
+    const ds=`${c.yr}-${String(c.m+1).padStart(2,'0')}-${String(c.d).padStart(2,'0')}`;
 
-    const mj  = c.other ? null : majalisEvs.find(e=>e.date===ds);
-    const tr  = c.other ? null : trainings.find(e=>e.date===ds);
+    const mj  = majalisEvs.find(e=>e.date===ds);
+    const tr  = trainings.find(e=>e.date===ds);
     const ro  = roster[ds]||{};
     const isFri = new Date(ds+'T12:00').getDay()===5;
-    const isToday=!c.other&&c.d===td.getDate()&&calMo===td.getMonth()&&calYr===td.getFullYear();
+    const isToday = !c.pad && c.yr===td.getFullYear() && c.m===td.getMonth() && c.d===td.getDate();
 
     const div=document.createElement('div');
     let cls='cell';
-    if(c.other)       cls+=' other';
-    else if(tr)       cls+=' ev-training';
-    else if(mj)       cls+=' ev-jk';
-    if(isToday)       cls+=' today';
+    if(c.pad)   cls+=' other';
+    else if(tr) cls+=' ev-training';
+    else if(mj) cls+=' ev-jk';
+    if(isToday) cls+=' today';
     div.className=cls;
-    if(!c.other) div.onclick=()=>openDayModal(ds,c.d);
+    div.onclick=()=>openDayModal(ds,c.d);
 
     let h='<div class="cell-inner">';
 
-    // ── Corner badge ──
-    if(!c.other&&tr)  h+=`<div class="corner-badge" style="background:linear-gradient(135deg,#1A2A4A,#8B5A0E);color:#E8C96A;border:1px solid rgba(180,130,60,0.5);">🎓 Training</div>`;
-    else if(!c.other&&mj){
-      const _bc = getMjBadge(mj.name);
+    // ── Badge (top-right circle) ──
+    if(tr){
+      h+=`<div style="position:absolute;top:7px;right:7px;background:linear-gradient(135deg,#92400E,#B45309);color:#FCD34D;border:1px solid rgba(245,158,11,0.4);border-radius:20px;padding:2px 7px;font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">🎓 Training</div>`;
+    } else if(mj){
+      const _bc=getMjBadge(mj.name);
       if(_bc){
-        const _isK = _bc.isK;
-        const _circStyle = _isK
-          ? 'background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(6,148,104,0.4));border:1.5px solid rgba(16,185,129,0.6);box-shadow:0 0 6px rgba(16,185,129,0.25),inset 0 0 4px rgba(16,185,129,0.1);color:#6EE7B7;'
-          : 'background:linear-gradient(135deg,#0B2A5A,#1565C0);border:1.5px solid rgba(79,195,247,0.5);color:#fff;';
-        const _fs = _bc.abbr.length > 5 ? '6px' : _bc.abbr.length > 3 ? '7px' : _bc.abbr.length > 2 ? '8px' : '10px';
-        h+=`<div style="position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:900;font-size:${_fs};letter-spacing:-.2px;flex-shrink:0;${_circStyle}">${_bc.abbr}</div>`;
+        h+=`<div class="cell-badge ${_bc.isK?'badge-k':'badge-jk'}" style="font-size:${_bc.abbr.length>5?'8px':_bc.abbr.length>3?'9px':'11px'}">${_bc.abbr}</div>`;
       } else {
-        h+=`<div class="corner-badge jk-badge">${trunc(mj.name,12)}</div>`;
+        h+=`<div class="cell-badge badge-jk" style="font-size:6px;width:30px;border-radius:8px;white-space:nowrap;">${trunc(mj.name,6)}</div>`;
       }
     }
 
     // ── Day number ──
     h+=`<div class="dn">${String(c.d).padStart(2,'0')}</div>`;
 
-    if(!c.other){
-      // ── Training label ──
-      if(tr){
-      // ── Training label removed ──
-      }
-      // ── Majalis type label — hidden for known types (circle badge replaces it) ──
-      if(mj && !getMjBadge(mj.name)){
-        h+=`<div style="font-family:'DM Sans',sans-serif;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#E07080;margin-bottom:4px;border-left:2px solid rgba(185,28,60,0.6);padding-left:5px;">${mj.type}</div>`;
-      }
+    // ── JK duty block ──
+    if(tr){
+      h+=`<div class="duty" style="margin-top:2px;">
+        <div class="duty-lbl" style="color:#C8900A;border-left-color:#8B6010;padding-right:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">JAM&#256;TKHANA</div>
+        <div class="duty-name" style="color:#FCD34D;font-size:13px;font-weight:800;font-family:'Barlow',sans-serif;">${esc(tr.trainer)}</div>
+        <div style="font-size:9px;color:#A07830;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          🎓 Trainee: <span style="color:#D97706;font-weight:600;">${esc(tr.trainee)}</span>
+        </div>
+      </div>`;
+    } else {
+      const jkP=getJKP(ro);
+      h+=`<div class="duty">
+        <div class="duty-lbl" style="padding-right:38px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${mj?`<span style="color:#B04858;">${trunc(esc(mj.name),14)}</span>`:'JAM\u0100TKHANA'}</div>
+        ${jkP
+          ?`<div class="duty-name">${esc(jkP)}</div>${ro._sup?`<div class="sup-tag">SUP: ${esc(ro._sup)}</div>`:''}`
+          :`<div class="duty-unassigned">—</div>`}
+      </div>`;
+    }
 
-      // ── JAMĀTKHANA duty block ──
-      // On training days: trainer replaces regular duty; trainee shown below
-      if(tr){
-        h+=`<div class="duty" style="border-left-color:#F59E0B;">
-          <div class="duty-lbl" style="color:#F59E0B;border-color:#F59E0B;">JAM&#256;TKHANA</div>
-          <div class="duty-name" style="color:#FCD34D;">${tr.trainer} <span class="chk" style="color:#F59E0B;">&#9745;</span></div>
-          <div style="font-size:9px;font-weight:600;color:#92400E;margin-top:2px;display:flex;align-items:center;gap:3px;">
-            <span style="font-size:8px;">🎓</span> Trainee: <span style="color:#D97706;">${tr.trainee}</span>
-          </div>
-        </div>`;
-      } else {
-        const jkP=getJKP(ro);
-        h+=`<div class="duty">
-          <div class="duty-lbl">JAM&#256;TKHANA</div>
-          ${jkP
-            ?`<div class="duty-name">${jkP} <span class="chk">&#9745;</span></div>${ro._sup?`<div class="sup-tag">SUP: ${ro._sup}</div>`:''}`
-            :`<div class="duty-unassigned">Unassigned</div>`}
-        </div>`;
-      }
-
-      // ── MPH CONGREGATION duty block — Fridays only ──
-      if(isFri){
-        const mphP = ro._mph_primary||null;
-        h+=`<div class="duty" style="margin-top:4px;border-top:1px solid rgba(245,158,11,0.2);padding-top:4px;">
-          <div class="duty-lbl" style="color:#F59E0B;border-color:#F59E0B;">MPH CONGREGATION</div>
+    // ── MPH block (Fridays only) ──
+    if(isFri && !ro._mph_removed){
+      const mphP=ro._mph_primary||null;
+      h+=`<hr class="duty-sep">
+        <div class="duty">
+          <div class="duty-lbl" style="color:#A06010;border-left-color:#7A4A00;">MPH</div>
           ${mphP
-            ?`<div class="duty-name" style="color:#FCD34D;">${mphP} <span class="chk">&#9745;</span></div>`
-            :`<div class="duty-unassigned" style="color:#92580A;">Unassigned</div>`}
+            ?`<div class="duty-name" style="color:#E8C060;">${esc(mphP)}</div>`
+            :`<div class="duty-unassigned">—</div>`}
         </div>`;
-      }
     }
 
     h+='</div>';
@@ -1711,9 +1852,10 @@ function renderCal(){
 }
 
 function getJKP(ro){
-  // _primary is auto-assigned; also check any manual role assignments
   if(ro._primary) return ro._primary;
-  for(const k of Object.keys(ro)){if(k!=='_mph'&&k!=='_sup'&&k!=='_auto'&&k!=='_primary'&&ro[k])return ro[k];}
+  for(const k of Object.keys(ro)){
+    if(k!=='_mph'&&k!=='_sup'&&k!=='_auto'&&k!=='_primary'&&k!=='_manual'&&k!=='_mph_primary'&&ro[k]&&typeof ro[k]==='string') return ro[k];
+  }
   return null;
 }
 function trunc(s,n){return s&&s.length>n?s.substring(0,n)+'...':s||'';}
@@ -1775,7 +1917,7 @@ function openDayModal(ds,day){
     <div>
       <div style="font-size:9px;font-weight:700;${tr2?'color:#F59E0B;border-left:2px solid #F59E0B;':'color:var(--dm);border-left:2px solid #1A3A5C;'}padding-left:5px;margin-bottom:4px;">JAM&#256;TKHANA</div>
       ${assigned
-        ?`<div style="font-family:'Barlow',sans-serif;font-size:16px;font-weight:800;color:${tr2?'#FCD34D':'#E8F4FD'};">${assigned} <span style="color:${tr2?'#F59E0B':'#4FC3F7'};">&#9745;</span></div>
+        ?`<div style="font-family:'Barlow',sans-serif;font-size:16px;font-weight:800;color:${tr2?'#FCD34D':'#E8F4FD'};">${assigned} <span style="color:${tr2?'#F59E0B':'#4FC3F7'};"></span></div>
           ${tr2?`<div style="font-size:11px;color:#D97706;margin-top:4px;">🎓 Trainee: <strong style="color:#FCD34D;">${tr2.trainee}</strong></div>`:''}
           ${!tr2&&ro._sup?`<div style="font-size:9px;font-weight:700;background:rgba(21,101,192,.2);color:#90CAF9;border:1px solid rgba(21,101,192,.3);padding:2px 7px;border-radius:4px;display:inline-block;margin-top:4px;">SUP: ${ro._sup}</div>`:''}`
         :`<div style="font-family:'Barlow',sans-serif;font-size:15px;font-weight:700;font-style:italic;color:#3A5878;">Unassigned</div>`}
@@ -1790,7 +1932,7 @@ function openDayModal(ds,day){
     <div style="background:var(--ds2);border:1px solid var(--gold-bd);border-radius:7px;padding:11px 14px;">
       <div style="font-size:9px;font-weight:700;color:#F59E0B;text-transform:uppercase;letter-spacing:.08em;border-left:2px solid #F59E0B;padding-left:5px;margin-bottom:4px;">MPH CONGREGATION</div>
       ${mphAssigned
-        ?`<div style="font-family:'Barlow',sans-serif;font-size:16px;font-weight:800;color:#FCD34D;">${mphAssigned} <span style="color:#F59E0B;">&#9745;</span></div>`
+        ?`<div style="font-family:'Barlow',sans-serif;font-size:16px;font-weight:800;color:#FCD34D;">${mphAssigned} <span style="color:#F59E0B;"></span></div>`
         :`<div style="font-family:'Barlow',sans-serif;font-size:15px;font-weight:700;font-style:italic;color:#4A3000;">Unassigned</div>`}
     </div>`;
   }
@@ -1800,13 +1942,6 @@ function openDayModal(ds,day){
   oM(h);
 }
 
-function openAssign(ds){ cM(); }
-
-function saveAssign(ds,hm){
-  roster[ds]=roster[ds]||{};
-  const s=document.getElementById('aSup');if(s)roster[ds]._sup=s.value;
-  cM();renderCal();toast('Saved!');
-}
 
 /* ═══════════════════════════════════
    VOLUNTEERS
@@ -2041,91 +2176,104 @@ function removeBusyDate(id,date){
 ═══════════════════════════════════════════════════════ */
 function autoRoster(){
   const DAY_NAMES=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const active=vols.filter(v=>v.status==='active');
-  
-  // Clear all auto-assigned slots for current view month
-  const dim=new Date(calYr,calMo+1,0).getDate();
-  for(let d=1;d<=dim;d++){
-    const ds=`${calYr}-${String(calMo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    if(roster[ds]&&roster[ds]._auto){
-      // Only clear auto fields, keep manual overrides
-      delete roster[ds]._primary;
-      delete roster[ds]._sup;
-      delete roster[ds]._auto;
-      delete roster[ds]._mph_primary;
-      if(!Object.keys(roster[ds]).length) delete roster[ds];
+  const active = vols.filter(v=>v.status==='active');
+
+  // ── Step 1: Clear only auto-assigned slots for current month ──
+  const dim = new Date(calYr, calMo+1, 0).getDate();
+  for(let d=1; d<=dim; d++){
+    const ds = `${calYr}-${String(calMo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const slot = roster[ds];
+    if(!slot) continue;
+    // NEVER touch manually overridden slots
+    if(slot._manual) continue;
+    // Only clear auto slots
+    if(slot._auto){
+      delete roster[ds];
     }
   }
 
-  if(!active.length){renderCal();return;}
+  if(!active.length){ renderCal(); return; }
 
-  // Build pool per day-of-week
-  const dayPool={};
-  DAY_NAMES.forEach((d,i)=>{
-    dayPool[i]=active.filter(v=>(v.days||[]).includes(d));
+  // ── Step 2: Build day-of-week pools (excluding MPH-only on Fridays) ──
+  const dayPool = {};
+  DAY_NAMES.forEach((day, i) => {
+    dayPool[i] = active.filter(v => (v.days||[]).includes(day));
   });
 
-  // Rotation pointer per day-of-week (0–6) and mph
-  const ptr={0:0,1:0,2:0,3:0,4:0,5:0,6:0,mph:0};
+  const ptr = {0:0,1:0,2:0,3:0,4:0,5:0,6:0,mph:0};
 
-  for(let d=1;d<=dim;d++){
-    const ds=`${calYr}-${String(calMo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const dow=new Date(ds+'T12:00').getDay();
-    // Skip if this slot has a manual assignment already
-    if(roster[ds]&&!roster[ds]._auto&&roster[ds]._primary) continue;
+  // ── Step 3: Assign each day ──
+  for(let d=1; d<=dim; d++){
+    const ds = `${calYr}-${String(calMo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow = new Date(ds+'T12:00').getDay();
+    const slot = roster[ds];
 
-    const pool=dayPool[dow];
-    if(!pool.length) continue;
+    // ── MANUAL OVERRIDE: skip JK+MPH entirely ──
+    if(slot && slot._manual) continue;
+    // ── MPH-ONLY MANUAL: skip MPH auto-assign but allow JK auto-assign ──
+    const mphIsManual = slot && slot._mph_manual;
 
-    // Filter out volunteers with personal busy dates on this day
-    // On Fridays, also exclude MPH-certified volunteers — they're reserved for MPH only
-    const avail=pool.filter(v=>{
-      if(dow===5 && (v.mph || v.type==='MPH Certified Member')) return false; // MPH certified → Friday is MPH only
-      if(!v.bds) return true;
-      const bList=(v.bds||'').split(',').map(s=>s.trim());
-      return !bList.includes(ds);
+    const pool = dayPool[dow] || [];
+
+    // ── JK ASSIGNMENT ──
+    // Filter: remove MPH-only on Fridays, remove anyone busy on this date
+    const jkAvail = pool.filter(v => {
+      // On Fridays, MPH certified are reserved for MPH only
+      if(dow===5 && (v.mph || (v.roles||[]).includes('MPH Certified Member'))) return false;
+      // Remove busy dates
+      const busy = (v.bds||'').split(',').map(s=>s.trim()).filter(Boolean);
+      if(busy.includes(ds)) return false;
+      return true;
     });
-    if(!avail.length) continue;
 
-    // Pick next in rotation (alternating weeks naturally)
-    const pick=avail[ptr[dow]%avail.length];
-    ptr[dow]++;
+    if(jkAvail.length > 0){
+      const pick = jkAvail[ptr[dow] % jkAvail.length];
+      ptr[dow]++;
 
-    roster[ds]=roster[ds]||{};
-    roster[ds]._auto=true;
-    roster[ds]._primary=pick.name;
+      roster[ds] = roster[ds] || {};
+      roster[ds]._auto    = true;
+      roster[ds]._primary = pick.name;
 
-    // SUP tag logic — supervisor only needed when a Junior is on a Majalis day
-    const isSup = pick.type==='Supervisor';
-    const isJunior = pick.type==='Junior Team Member';
-    const mj2 = majalisEvs.find(e=>e.date===ds);
-    if(isJunior && mj2){
-      // Junior on a majalis day — find an available supervisor
-      const sup=avail.find(v=>v.type==='Supervisor'&&v.name!==pick.name);
-      roster[ds]._sup=sup?sup.name:'';
-    } else {
-      roster[ds]._sup='';
+      // SUP: only if Junior picked on a Majalis day
+      const isJunior = (pick.roles||[]).includes('Junior Team Member') || pick.type==='Junior Team Member';
+      const hasMajalis = !!majalisEvs.find(e=>e.date===ds);
+      if(isJunior && hasMajalis){
+        const sup = jkAvail.find(v =>
+          ((v.roles||[]).includes('Supervisor') || v.type==='Supervisor') &&
+          v.name !== pick.name
+        );
+        roster[ds]._sup = sup ? sup.name : '';
+      } else {
+        roster[ds]._sup = '';
+      }
     }
 
-    // ── MPH Congregation (Fridays only) ──
-    if(dow===5){
-      const mphPool=active.filter(v=>v.mph&&v.days.includes('Fri'));
-      if(mphPool.length){
-        const avMph=mphPool.filter(v=>
-          !(v.bds||'').split(',').filter(Boolean).includes(ds)
-        );
-        if(avMph.length){
-          const mphPick=avMph[ptr.mph%avMph.length];
-          ptr.mph++;
-          roster[ds]=roster[ds]||{};
-          roster[ds]._mph_primary=mphPick.name;
-        }
+    // ── MPH ASSIGNMENT (Fridays only, unless manually set or explicitly removed) ──
+    const mphRemoved = slot && slot._mph_removed;
+    if(dow === 5 && !mphIsManual && !mphRemoved){
+      const mphPool = active.filter(v =>
+        (v.mph || (v.roles||[]).includes('MPH Certified Member')) &&
+        (v.days||[]).includes('Fri')
+      );
+      const mphAvail = mphPool.filter(v => {
+        const busy = (v.bds||'').split(',').map(s=>s.trim()).filter(Boolean);
+        return !busy.includes(ds);
+      });
+      if(mphAvail.length > 0){
+        const mphPick = mphAvail[ptr.mph % mphAvail.length];
+        ptr.mph++;
+        roster[ds] = roster[ds] || {};
+        roster[ds]._mph_primary = mphPick.name;
       }
+    } else if(dow !== 5 && !mphIsManual && roster[ds]){
+      // Non-Friday: only keep MPH if manually set
+      // (auto never assigns MPH on non-Fridays)
     }
   }
 
   renderCal();
 }
+
 
 /* ═══════════════════════════════════
    MAJALIS EVENTS
@@ -2147,7 +2295,7 @@ function renderMajalisCards(){
         : `background:linear-gradient(135deg,#0B2A5A,#1565C0);border:1.5px solid rgba(79,195,247,0.4);color:#fff;`
       : `background:linear-gradient(135deg,#0B2A5A,#1565C0);border:1.5px solid rgba(79,195,247,0.4);color:#fff;`;
     const circleContent = badge
-      ? `<div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:900;font-size:${badge.abbr.length>4?9:badge.abbr.length>2?11:14}px;flex-shrink:0;letter-spacing:-.3px;${circleStyle}">${badge.abbr}</div>`
+      ? `<div style="width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:900;font-size:${badge.abbr.length>5?9:badge.abbr.length>3?11:badge.abbr.length>2?13:16}px;flex-shrink:0;letter-spacing:-.3px;${circleStyle}">${badge.abbr}</div>`
       : `<div class="mj-list-date" style="min-width:44px;padding:6px 8px;">
           <div class="mj-list-mo">${MOS[dt.getMonth()]}</div>
           <div class="mj-list-d">${String(dt.getDate()).padStart(2,'0')}</div>
@@ -2311,97 +2459,350 @@ function renderUpcoming(){
    SCREENSHOT — hi-res PNG export
 ═══════════════════════════════════ */
 async function downloadRosterPNG(){
-  const btn  = document.getElementById('screenshotBtn');
-  const wrap = document.querySelector('.roster-wrap');
-  if(!wrap){ toast('Roster not found','err'); return; }
-
+  const btn = document.getElementById('screenshotBtn');
   const orig = btn.innerHTML;
   btn.innerHTML = '⏳ Capturing…';
   btn.disabled = true;
 
-  const navBtns = document.querySelectorAll('.r-nav-btn');
-  navBtns.forEach(b => b.style.visibility = 'hidden');
   const portal = document.getElementById('role-portal');
   if(portal) portal.remove();
 
   try {
-    const canvas = await html2canvas(wrap, {
-      scale: 4,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#050D1C',
-      logging: false,
-      onclone: (doc) => {
-        // Inject a style override to kill gradient text (html2canvas can't render it)
-        const s = doc.createElement('style');
-        s.textContent = `
-          .r-title .big { background: none !important; -webkit-background-clip: unset !important; -webkit-text-fill-color: #ffffff !important; background-clip: unset !important; color: #ffffff !important; }
-          .cell { min-height: 110px !important; padding: 8px 10px 10px !important; }
-          .col-hdr { padding: 10px 8px !important; }
-          .dn { font-size: 22px !important; margin-bottom: 6px !important; }
-        `;
-        doc.head.appendChild(s);
+    const monthTitle = document.getElementById('calTitle').textContent;
 
-        const cWrap = doc.querySelector('.roster-wrap');
-        if(cWrap){
-          cWrap.style.overflow  = 'visible';
-          cWrap.style.height    = 'auto';
-          cWrap.style.maxHeight = 'none';
-          cWrap.style.borderRadius = '0';
-          cWrap.style.boxShadow = 'none';
-        }
-        doc.querySelectorAll('.main, #page-calendar').forEach(el=>{
-          el.style.overflow = 'visible';
-          el.style.height   = 'auto';
-          el.style.maxHeight = 'none';
-        });
-        doc.querySelectorAll('.r-nav-btn').forEach(b => b.style.visibility = 'hidden');
-        const bigTitle = doc.querySelector('.r-title .big');
-        if(bigTitle){
-          bigTitle.style.cssText += ';background:none!important;-webkit-background-clip:unset!important;-webkit-text-fill-color:#ffffff!important;background-clip:unset!important;color:#ffffff!important;';
-        }
-        // Also fix the sub-title and any other gradient text
-        doc.querySelectorAll('[style*="background-clip"], [style*="-webkit-text-fill"]').forEach(el=>{
-          el.style.webkitTextFillColor = '#ffffff';
-          el.style.color = '#ffffff';
-        });
-        const grid = doc.querySelector('.cal-grid');
-        if(grid) grid.style.overflow = 'visible';
-        doc.querySelectorAll('.cell').forEach(c=>{
-          c.style.overflow = 'visible';
-        });
-      }
+    // ── Off-screen container ──
+    const container = document.createElement('div');
+    container.style.cssText = `
+      position:fixed;left:-9999px;top:0;
+      width:1680px;
+      background:linear-gradient(160deg,#ffffff 0%,#e8f4ff 40%,#d0e8ff 100%);
+      font-family:'DM Sans',sans-serif;
+      padding:0;margin:0;
+    `;
+
+    // ── Month title — full redesign ──
+    const titleEl = document.createElement('div');
+    titleEl.style.cssText = `
+      position:relative;
+      background:linear-gradient(135deg,#0A2A6E 0%,#1055B8 45%,#1976D2 75%,#42A5F5 100%);
+      text-align:center;
+      padding:34px 40px 30px;
+      overflow:hidden;
+    `;
+
+    // Decorative circles behind title
+    const deco1 = document.createElement('div');
+    deco1.style.cssText = `position:absolute;width:320px;height:320px;border-radius:50%;
+      background:rgba(255,255,255,0.05);top:-100px;left:-60px;`;
+    const deco2 = document.createElement('div');
+    deco2.style.cssText = `position:absolute;width:220px;height:220px;border-radius:50%;
+      background:rgba(255,255,255,0.06);bottom:-80px;right:80px;`;
+    const deco3 = document.createElement('div');
+    deco3.style.cssText = `position:absolute;width:140px;height:140px;border-radius:50%;
+      background:rgba(255,255,255,0.04);top:10px;right:200px;`;
+    titleEl.appendChild(deco1);
+    titleEl.appendChild(deco2);
+    titleEl.appendChild(deco3);
+
+    // Subtitle
+    const subEl = document.createElement('div');
+    subEl.style.cssText = `
+      font-family:'DM Sans',sans-serif;
+      font-size:13px;font-weight:600;
+      text-transform:uppercase;letter-spacing:.3em;
+      color:rgba(200,228,255,0.7);
+      margin-bottom:10px;
+      position:relative;z-index:1;
+    `;
+    subEl.textContent = 'Auckland Jamatkhana · AV Volunteer Roster';
+    titleEl.appendChild(subEl);
+
+    // Month + Year — split styling
+    const [monthPart, yearPart] = monthTitle.split(' ');
+    const titleInner = document.createElement('div');
+    titleInner.style.cssText = `position:relative;z-index:1;line-height:1;`;
+    titleInner.innerHTML = `
+      <span style="font-family:'Barlow',sans-serif;font-size:62px;font-weight:900;
+        text-transform:uppercase;letter-spacing:.08em;color:#FFFFFF;
+        text-shadow:0 2px 20px rgba(0,0,0,0.25);">${monthPart}</span>
+      <span style="font-family:'Barlow',sans-serif;font-size:62px;font-weight:300;
+        text-transform:uppercase;letter-spacing:.08em;color:rgba(200,228,255,0.75);
+        margin-left:18px;">${yearPart}</span>
+    `;
+    titleEl.appendChild(titleInner);
+
+    // Thin bottom accent line
+    const accentLine = document.createElement('div');
+    accentLine.style.cssText = `
+      position:absolute;bottom:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+    `;
+    titleEl.appendChild(accentLine);
+    container.appendChild(titleEl);
+
+    // ── Grid wrapper ──
+    const gridWrap = document.createElement('div');
+    gridWrap.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);width:100%;';
+
+    // ── Column headers — reworked ──
+    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    days.forEach((d,i) => {
+      const hdr = document.createElement('div');
+      const isFriday = i === 5;
+      hdr.style.cssText = `
+        background:${isFriday
+          ? 'linear-gradient(180deg,#1055B8,#0D47A1)'
+          : 'linear-gradient(180deg,#1565C0,#1258AA)'};
+        padding:14px 8px 13px;
+        text-align:center;
+        font-family:'DM Sans',sans-serif;
+        font-size:12px;font-weight:800;
+        text-transform:uppercase;letter-spacing:.18em;
+        color:${isFriday ? '#90CAFF' : 'rgba(220,238,255,0.85)'};
+        border-right:${i<6 ? '1px solid rgba(255,255,255,0.1)' : 'none'};
+        border-bottom:3px solid ${isFriday ? 'rgba(100,180,255,0.6)' : 'rgba(255,255,255,0.15)'};
+        box-sizing:border-box;
+      `;
+      hdr.textContent = d;
+      gridWrap.appendChild(hdr);
     });
 
-    // Trim blank rows from bottom
+    // ── Cells ──
+    const CELL_HEIGHT = '185px';
+    const CELL_PAD = '13px 15px 15px';
+    const liveCells = document.querySelectorAll('#calBody > div');
+
+    liveCells.forEach((cell, idx) => {
+      const clone = cell.cloneNode(true);
+      const isOther = cell.classList.contains('other');
+      const isMajalis = cell.classList.contains('ev-jk');
+      const isTraining = cell.classList.contains('ev-training');
+      const isToday = cell.classList.contains('today');
+
+      // ── Cell background ──
+      let cellBg = '#FFFFFF';
+      let cellBorder = 'rgba(21,101,192,0.18)';
+      if(isMajalis){ cellBg='#FFF5F7'; cellBorder='rgba(185,28,100,0.3)'; }
+      else if(isTraining){ cellBg='#FFFBF0'; cellBorder='rgba(180,130,40,0.3)'; }
+      else if(isOther){ cellBg='#F5F8FF'; }
+
+      clone.style.cssText = `
+        background:${cellBg};
+        border-right:1px solid ${cellBorder};
+        border-bottom:1px solid ${cellBorder};
+        padding:${CELL_PAD};
+        min-height:${CELL_HEIGHT};
+        position:relative;
+        box-sizing:border-box;
+        overflow:hidden;
+        opacity:${isOther?'0.25':'1'};
+        ${isToday?'box-shadow:inset 0 0 0 3px rgba(21,101,192,0.7);background:#EEF6FF !important;':''}
+      `;
+
+      // ── Day number ──
+      clone.querySelectorAll('.dn').forEach(el => {
+        let dnCol = '#1E5A8A';
+        if(isToday) dnCol = '#1565C0';
+        else if(isMajalis) dnCol = '#9B2040';
+        else if(isTraining) dnCol = '#7A5800';
+        el.style.cssText = `
+          font-family:'Barlow',sans-serif;
+          font-size:28px;font-weight:900;
+          color:${dnCol};
+          line-height:1;margin-bottom:8px;
+          letter-spacing:-.5px;display:block;
+        `;
+      });
+
+      // ── Cell badge circle (majalis type) — large & centered ──
+      clone.querySelectorAll('.cell-badge').forEach(el => {
+        // Determine abbreviation length from text content to size font correctly
+        const abbr = el.textContent.trim();
+        const aLen = abbr.length;
+        const fs = aLen >= 6 ? '13px' : aLen >= 4 ? '15px' : aLen >= 3 ? '16px' : '20px';
+        el.style.width = '62px';
+        el.style.height = '62px';
+        el.style.minWidth = '62px';
+        el.style.minHeight = '62px';
+        el.style.fontSize = fs;
+        el.style.top = '10px';
+        el.style.right = '10px';
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        el.style.textAlign = 'center';
+        el.style.lineHeight = '1';
+        el.style.fontWeight = '900';
+        el.style.letterSpacing = '-.5px';
+        el.style.borderRadius = '50%';
+        el.style.position = 'absolute';
+        el.style.fontFamily = "'Barlow',sans-serif";
+        el.style.boxSizing = 'border-box';
+      });
+
+      // ── Duty label padding — clear the bigger badge ──
+      clone.querySelectorAll('.duty-lbl').forEach(el => {
+        el.style.paddingRight = '74px';
+      });
+
+      // ── Duty label (JAMĀTKHANA / name of majalis / MPH) ──
+      clone.querySelectorAll('.duty-lbl').forEach(el => {
+        const isMph = el.classList.contains('mph-lbl') || el.style.color.includes('F59E0B') || el.style.color.includes('A06010');
+        const isTrainLbl = el.style.color.includes('C8900A');
+        let lblCol = '#2A6A9A';
+        let lblBdr = '#4A90C0';
+        if(isMph){ lblCol='#8A5A00'; lblBdr='#C08020'; }
+        if(isTrainLbl){ lblCol='#9A6000'; lblBdr='#C08010'; }
+        if(isMajalis && !isMph && !isTrainLbl){ lblCol='#8A1830'; lblBdr='rgba(185,28,60,0.6)'; }
+        el.style.cssText = `
+          font-family:'DM Sans',sans-serif;
+          font-size:11px;font-weight:700;
+          text-transform:uppercase;letter-spacing:.08em;
+          color:${lblCol};
+          border-left:2px solid ${lblBdr};
+          padding-left:6px;padding-right:44px;
+          margin-bottom:5px;line-height:1;
+          display:block;white-space:nowrap;
+          overflow:hidden;text-overflow:ellipsis;
+        `;
+      });
+
+      // ── Volunteer name — biggest, brightest ──
+      clone.querySelectorAll('.duty-name').forEach(el => {
+        const isMphName = el.style.color.includes('E8C060') || el.style.color.includes('FCD34D');
+        const isTrainName = el.style.color.includes('FCD34D') || el.style.color.includes('F5CC70');
+        let nameCol = '#0A1E3E';
+        if(isMajalis && !isMphName) nameCol = '#4A0A18';
+        if(isTraining || isTrainName) nameCol = '#5A3A00';
+        if(isMphName) nameCol = '#5A4000';
+        el.style.cssText = `
+          font-family:'DM Sans',sans-serif;
+          font-size:22px;font-weight:700;
+          color:${nameCol};
+          white-space:nowrap;overflow:hidden;
+          text-overflow:ellipsis;display:block;
+          max-width:100%;line-height:1.3;
+          margin-bottom:1px;
+        `;
+      });
+
+      // ── Unassigned ──
+      clone.querySelectorAll('.duty-unassigned').forEach(el => {
+        el.style.cssText = `
+          font-family:'DM Sans',sans-serif;
+          font-size:15px;font-style:italic;
+          color:#8AAAC8;
+        `;
+      });
+
+      // ── SUP tag ──
+      clone.querySelectorAll('.sup-tag').forEach(el => {
+        el.style.cssText = `
+          display:inline-block;
+          font-size:11px;font-weight:700;
+          padding:3px 9px;border-radius:4px;margin-top:4px;
+          background:rgba(21,101,192,0.12);
+          color:#1565C0;
+          border:1px solid rgba(21,101,192,0.35);
+        `;
+      });
+
+      // ── MPH separator ──
+      clone.querySelectorAll('.duty-sep').forEach(el => {
+        el.style.cssText = 'border:none;border-top:1px solid rgba(21,101,192,0.15);margin:7px 0 6px;';
+      });
+
+      // ── Training pill (top-right) — much bigger, centered ──
+      clone.querySelectorAll('div[style*="border-radius:20px"]').forEach(el => {
+        el.style.fontSize = '13px';
+        el.style.padding = '6px 14px';
+        el.style.top = '10px';
+        el.style.right = '10px';
+        el.style.letterSpacing = '.06em';
+        el.style.fontWeight = '800';
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        el.style.gap = '5px';
+        el.style.lineHeight = '1';
+      });
+
+      // Adjust duty label padding for training cells too
+      if(isTraining){
+        clone.querySelectorAll('.duty-lbl').forEach(el => {
+          el.style.paddingRight = '100px';
+        });
+      }
+
+      // ── Trainee line ──
+      clone.querySelectorAll('div[style*="A07830"]').forEach(el => {
+        el.style.fontSize = '17px';
+        el.style.fontWeight = '600';
+        el.style.whiteSpace = 'nowrap';
+        el.style.overflow = 'hidden';
+        el.style.textOverflow = 'ellipsis';
+        el.style.color = '#7A5000';
+        el.style.marginTop = '6px';
+        el.style.lineHeight = '1.3';
+      });
+
+      // ── Trainer name on training days (duty-name inside training cell) ──
+      if(isTraining){
+        clone.querySelectorAll('.duty-name').forEach(el => {
+          el.style.fontSize = '20px';
+          el.style.fontWeight = '800';
+          el.style.color = '#4A3000';
+        });
+      }
+
+      gridWrap.appendChild(clone);
+    });
+
+    container.appendChild(gridWrap);
+    document.body.appendChild(container);
+
+    const canvas = await html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#e8f4ff',
+      logging: false,
+      width: 1680,
+    });
+
+    document.body.removeChild(container);
+
+    // Trim blank bottom rows
     const ctx = canvas.getContext('2d');
-    const bg = [5,13,28];
+    const bg = [232,244,255];
     let cropH = canvas.height;
-    outer: for(let y=canvas.height-1; y>=canvas.height*0.7; y--){
+    outer: for(let y=canvas.height-1; y>=canvas.height*0.4; y--){
       const row = ctx.getImageData(0,y,canvas.width,1).data;
       for(let x=0; x<row.length; x+=4){
-        if(Math.abs(row[x]-bg[0])+Math.abs(row[x+1]-bg[1])+Math.abs(row[x+2]-bg[2])>25){
-          cropH=y+4; break outer;
+        if(Math.abs(row[x]-bg[0])+Math.abs(row[x+1]-bg[1])+Math.abs(row[x+2]-bg[2])>18){
+          cropH=y+12; break outer;
         }
       }
     }
-    const out = document.createElement('canvas');
-    out.width = canvas.width; out.height = cropH;
-    out.getContext('2d').drawImage(canvas,0,0);
 
-    const month = document.getElementById('calTitle').textContent.replace(' ','-');
-    const link  = document.createElement('a');
-    link.download = `AV-Roster-${month}.jpg`;
-    link.href = out.toDataURL('image/jpeg', 0.95);
+    const out = document.createElement('canvas');
+    out.width = canvas.width;
+    out.height = cropH;
+    out.getContext('2d').drawImage(canvas, 0, 0);
+
+    const link = document.createElement('a');
+    link.download = `AV-Roster-${monthTitle.replace(' ','-')}.jpeg`;
+    link.href = out.toDataURL('image/jpeg', 0.92);
     link.click();
-    toast('Hi-res JPG saved!');
-  } catch(e){
+    toast('JPG saved!');
+} catch(e){
     console.error(e);
     toast('Screenshot failed: '+e.message,'err');
+    const c = document.querySelector('div[style*="left:-9999px"]');
+    if(c) document.body.removeChild(c);
   } finally {
-    navBtns.forEach(b => b.style.visibility='');
     btn.innerHTML = orig;
-    btn.disabled  = false;
+    btn.disabled = false;
   }
 }
 
@@ -2661,20 +3062,37 @@ function initRuntimeUsers(){
   Object.keys(USERS).forEach(u => { if(u !== 'eshan.punjwani') runtimeUsers[u] = USERS[u]; });
 }
 
-function apSetMonth(){
+async function apSetMonth(){
   if(!window.CU || CU.user !== 'eshan.punjwani'){ toast('Access denied','err'); return; }
-  const mo = parseInt(document.getElementById('ap-month').value);
-  const yr = parseInt(document.getElementById('ap-year').value);
-  if(isNaN(yr)||yr<2020||yr>2099){ toast('Enter a valid year','err'); return; }
+  const moEl = document.getElementById('ap-month');
+  const yrEl = document.getElementById('ap-year');
+  if(!moEl || !yrEl){ toast('Form elements missing','err'); return; }
+  const mo = parseInt(moEl.value);
+  const yr = parseInt(yrEl.value);
+  if(isNaN(mo)||mo<0||mo>11){ toast('Select a valid month','err'); return; }
+  if(isNaN(yr)||yr<2020||yr>2099){ toast('Enter a valid year (2020–2099)','err'); return; }
+
+  const btn = document.getElementById('ap-setmonth-btn');
+  if(btn){ btn.textContent='⏳ Saving…'; btn.disabled=true; }
+
   calMo = mo; calYr = yr;
   sessionStorage.setItem('jk_calMo', calMo);
   sessionStorage.setItem('jk_calYr', calYr);
-  // Save to DB — all devices will receive this via Realtime
-  saveMonthSetting(calMo, calYr);
-  auditLog(`Set roster month to ${MO[calMo]} ${calYr}`, 'roster', 'Via Admin Panel — applies to all users');
-  autoRoster();
-  toast(`Roster set to ${MO[calMo]} ${calYr} for all users`);
-  nav(document.querySelector('[data-page=calendar]'));
+
+  try {
+    await saveMonthSetting(calMo, calYr);
+    auditLog(`Set roster month to ${MO[calMo]} ${calYr}`, 'roster', 'Via Admin Panel — applies to all users');
+    autoRoster();
+    toast(`✓ Roster set to ${MO[calMo]} ${calYr} for all users`);
+    nav(document.querySelector('[data-page=calendar]'));
+  } catch(e) {
+    console.error('apSetMonth error:', e);
+    toast('Month set locally but DB save failed — check connection','err');
+    autoRoster();
+    nav(document.querySelector('[data-page=calendar]'));
+  } finally {
+    if(btn){ btn.textContent='Set Month'; btn.disabled=false; }
+  }
 }
 
 function apCreateUser(){
@@ -2686,6 +3104,7 @@ function apCreateUser(){
   if(!display)  { toast('Enter a display name','err'); return; }
   if(!username) { toast('Enter a username','err'); return; }
   if(!password) { toast('Enter a password','err'); return; }
+  if(!/^[a-zA-Z0-9._-]+$/.test(username)){ toast('Username: only letters, numbers, dots, dashes allowed','err'); return; }
   if(USERS[username] || runtimeUsers[username]){ toast('Username already exists','err'); return; }
   const newUserData = { pw: password, role, display };
   USERS[username] = newUserData;
@@ -2705,28 +3124,44 @@ function apLoadDayFields(){
 
   const isFri = new Date(ds+'T12:00').getDay() === 5;
   const ro = roster[ds] || {};
-  const active = vols.filter(v=>v.status==='active');
+  // Show ALL volunteers (not just active) so manual overrides always work
+  const allVols = vols.slice().sort((a,b)=>a.name.localeCompare(b.name));
 
   // Populate JK dropdown
   const jkSel = document.getElementById('ap-edit-primary');
-  jkSel.innerHTML = '<option value="">— Auto-assigned —</option>' +
-    active.map(v=>`<option value="${v.name}" ${ro._primary===v.name?'selected':''}>${v.name}</option>`).join('');
+  jkSel.innerHTML = '<option value="">— Select volunteer —</option>' +
+    allVols.map(v=>`<option value="${v.name}" ${ro._primary===v.name?'selected':''}>${v.name}</option>`).join('');
 
   // Populate SUP dropdown
   const supSel = document.getElementById('ap-edit-sup');
   supSel.innerHTML = '<option value="">— None —</option>' +
-    active.filter(v=>v.roles&&v.roles.includes('Supervisor')).map(v=>`<option value="${v.name}" ${ro._sup===v.name?'selected':''}>${v.name}</option>`).join('');
+    allVols.filter(v=>(v.roles||[]).includes('Supervisor')||v.type==='Supervisor').map(v=>`<option value="${v.name}" ${ro._sup===v.name?'selected':''}>${v.name}</option>`).join('');
 
   // MPH dropdown — only relevant on Fridays
-  const mphWrap = document.getElementById('ap-edit-mph-wrap');
-  mphWrap.style.opacity = isFri ? '1' : '0.3';
+  // ── MPH — single dropdown: assign volunteer OR cancel duty ──
   const mphSel = document.getElementById('ap-edit-mph');
-  mphSel.disabled = !isFri;
-  mphSel.innerHTML = '<option value="">— Auto-assigned —</option>' +
-    active.filter(v=>v.mph).map(v=>`<option value="${v.name}" ${ro._mph_primary===v.name?'selected':''}>${v.name}</option>`).join('');
+  const mphCurrent = document.getElementById('ap-mph-current');
+  if(mphSel){
+    mphSel.disabled = false;
+    // Derive mph from roles directly (v.mph may be stale)
+    const mphVols = active.filter(v => (v.roles||[]).includes('MPH Certified Member') || v.mph);
+    mphSel.innerHTML =
+      '<option value="">— Select action —</option>' +
+      mphVols.map(v => `<option value="${esc(v.name)}" ${ro._mph_primary===v.name?'selected':''}>${esc(v.name)}</option>`).join('') +
+      '<option value="__cancel__" style="color:#f88;" ' + (ro._mph_removed?'selected':'') + '>✕ Cancel MPH Duty for this date</option>';
+  }
+  if(mphCurrent){
+    if(ro._mph_removed){
+      mphCurrent.innerHTML = `<span style="color:#f88;font-weight:600;">✕ MPH duty cancelled for this day</span>`;
+    } else if(ro._mph_primary){
+      mphCurrent.innerHTML = `<span style="color:#FCD34D;font-weight:600;">Currently: ${esc(ro._mph_primary)}</span>`;
+    } else {
+      mphCurrent.innerHTML = `<span style="color:#4A6A80;font-style:italic;">${isFri?'Auto-assigned on Fridays.':'Not assigned.'}</span>`;
+    }
+  }
 
-  // Make dropdowns scrollable by capping visible rows
-  [jkSel, supSel, mphSel].forEach(sel => {
+  // Make dropdowns scrollable if many options
+  [jkSel, supSel].forEach(sel => {
     const opts = sel.options.length;
     if(opts > 5){
       sel.size = 5;
@@ -2741,8 +3176,10 @@ function apLoadDayFields(){
   const mj = majalisEvs.find(e=>e.date===ds);
   const tr = trainings.find(e=>e.date===ds);
   let info = [];
-  if(ro._auto) info.push('Auto-assigned');
-  else if(ro._primary) info.push('Manually assigned');
+  if(ro._manual) info.push(`✓ Manually assigned: ${ro._primary}`);
+  else if(ro._auto) info.push(`Auto: ${ro._primary||'unassigned'}`);
+  else if(ro._primary) info.push(`Assigned: ${ro._primary}`);
+  else info.push('No assignment');
   notes.textContent = info.join(' · ');
 
   // Auto-fill date display in majalis section
@@ -2808,8 +3245,7 @@ function apAddMajalis(){
   auditLog(`Admin added Majalis: ${name}`, 'majalis', `Date: ${ds} via Admin Panel`);
   renderMajalisCards(); renderUpcoming(); updateStats(); autoRoster();
   apLoadDayFields();
-  renderMajalisCards(); renderUpcoming(); updateStats(); autoRoster();
-  apLoadDayFields();
+  // Auto-add PBS for Chandraat before final render
   if(name.toLowerCase().includes('chandraat')){
     var pbsD=new Date(ds+'T12:00'); pbsD.setDate(pbsD.getDate()+8);
     var pbsDate=pbsD.toISOString().split('T')[0];
@@ -2817,9 +3253,15 @@ function apAddMajalis(){
       var pbsMj={id:Date.now()+Math.floor(Math.random()*9000)+1000,name:'Paanch Baar Saal',type:'Majalis',date:pbsDate,time:'',category:''};
       majalisEvs.push(pbsMj); dbSaveMajalis(pbsMj);
       auditLog('Auto-added: Paanch Baar Saal','majalis','8 days after '+name);
-      renderMajalisCards(); renderUpcoming(); updateStats(); autoRoster();
     }
   }
+  // Reset form fields
+  const _mjSel = document.getElementById('ap-mj-select');
+  const _mjCus = document.getElementById('ap-mj-custom');
+  if(_mjSel) _mjSel.value='';
+  if(_mjCus){ _mjCus.value=''; _mjCus.style.display='none'; }
+  renderMajalisCards(); renderUpcoming(); updateStats(); autoRoster();
+  apLoadDayFields();
   toast('Majalis saved for '+fd(ds));
 }
 
@@ -2869,34 +3311,162 @@ function apRemoveTraining(){
 
 function apSaveDay(){
   const ds = document.getElementById('ap-edit-date').value;
-  if(!ds){ toast('Pick a date first','err'); return; }
+  if(!ds){ toast('Select a date first','err'); return; }
+
   const primary = document.getElementById('ap-edit-primary').value;
   const sup     = document.getElementById('ap-edit-sup').value;
   const mph     = document.getElementById('ap-edit-mph').value;
 
-  roster[ds] = roster[ds] || {};
-  // Mark as manual (not auto) so autoRoster won't overwrite
-  delete roster[ds]._auto;
-  if(primary) roster[ds]._primary = primary; else delete roster[ds]._primary;
-  if(sup)     roster[ds]._sup     = sup;     else roster[ds]._sup = '';
-  if(mph)     roster[ds]._mph_primary = mph; else delete roster[ds]._mph_primary;
+  if(!primary){ toast('Select a JK volunteer','err'); return; }
 
-  dbSaveRosterDay(ds, roster[ds]);
-  auditLog(`Manual override: ${ds}`, 'roster',
-    `JK: ${primary||'auto'} · SUP: ${sup||'none'} · MPH: ${mph||'auto'}`);
-  renderCal();
-  toast(`Day ${ds} saved!`);
+  // Build override entry — _manual flag is sacred: autoRoster NEVER touches it
+  const entry = {
+    _primary: primary,
+    _sup:     sup || '',
+    _manual:  true,
+    _auto:    false,   // explicitly not auto
+  };
+  // Handle MPH dropdown — three states
+  const mphDropVal = document.getElementById('ap-edit-mph').value;
+  if(mphDropVal === '__cancel__'){
+    // User explicitly wants to cancel MPH
+    entry._mph_removed = true;
+    entry._mph_manual = true;
+  } else if(mphDropVal && mphDropVal !== ''){
+    // User selected a volunteer
+    entry._mph_primary = mphDropVal;
+    entry._mph_manual = true;
+    delete entry._mph_removed;
+  } else {
+    // No selection — preserve any existing mph state
+    if(roster[ds]){
+      if(roster[ds]._mph_primary) entry._mph_primary = roster[ds]._mph_primary;
+      if(roster[ds]._mph_removed) entry._mph_removed = roster[ds]._mph_removed;
+      if(roster[ds]._mph_manual) entry._mph_manual = roster[ds]._mph_manual;
+    }
+  }
+
+  // Set in memory
+  roster[ds] = entry;
+
+  // Navigate calendar to the date's month
+  const dateObj = new Date(ds+'T12:00');
+  calMo = dateObj.getMonth();
+  calYr = dateObj.getFullYear();
+  sessionStorage.setItem('jk_calMo', calMo);
+  sessionStorage.setItem('jk_calYr', calYr);
+
+  // Render calendar — manual slot will show correctly
+  // Run autoRoster so OTHER days in this month get properly filled
+  // Manual day is protected by _manual flag
+  autoRoster();
+
+  // Save to DB (pause realtime to prevent echo overwriting our manual entry)
+  pauseRealtime(5000);
+  dbSaveRosterDay(ds, entry);
+
+  auditLog(
+    'Manual override: '+ds, 'roster',
+    'JK: '+primary+(sup?' · SUP: '+sup:'')+(mphDropVal==='__cancel__'?' · MPH: CANCELLED':mphDropVal?' · MPH: '+mphDropVal:'')
+  );
+
+  apLoadDayFields();
+  toast('\u2713 Override saved — '+primary+' on '+fd(ds));
 }
+
 
 function apClearDay(){
   const ds = document.getElementById('ap-edit-date').value;
-  if(!ds){ toast('Pick a date first','err'); return; }
-  delete roster[ds];
+  if(!ds){ toast('Select a date first','err'); return; }
+
+  // Fully remove from memory — autoRoster will re-assign on next run
+  delete roster[ds]; // this also clears _mph_removed, _mph_manual etc.
+
+  // Delete from DB
+  pauseRealtime(3000);
   dbSaveRosterDay(ds, null);
-  auditLog(`Cleared override for ${ds}`, 'roster', 'Reverted to auto-roster');
+
+  auditLog('Cleared override for '+ds, 'roster', 'Reverted to auto-roster');
+
+  // Re-run autoRoster so this day gets auto-filled immediately
   autoRoster();
-  toast(`Override cleared — ${ds} is back to auto.`);
   apLoadDayFields();
+  toast('Override cleared — '+fd(ds)+' is back to auto');
+}
+
+
+
+function apHandleMphChange(){
+  // Just update the visual status — actual save happens via Save Roster button
+  const val = document.getElementById('ap-edit-mph').value;
+  const mphCurrent = document.getElementById('ap-mph-current');
+  if(!mphCurrent) return;
+  if(val === '__cancel__'){
+    mphCurrent.innerHTML = '<span style="color:#f88;font-weight:600;">✕ Will cancel MPH duty — click Save Roster to confirm</span>';
+  } else if(val){
+    mphCurrent.innerHTML = `<span style="color:#FCD34D;font-weight:600;">Will assign: ${val} — click Save Roster to confirm</span>`;
+  } else {
+    // Reset to current saved state
+    const ds = document.getElementById('ap-edit-date').value;
+    const ro = roster[ds]||{};
+    if(ro._mph_removed){
+      mphCurrent.innerHTML = '<span style="color:#f88;font-weight:600;">✕ MPH duty cancelled for this day</span>';
+    } else if(ro._mph_primary){
+      mphCurrent.innerHTML = `<span style="color:#FCD34D;font-weight:600;">Currently: ${ro._mph_primary}</span>`;
+    } else {
+      mphCurrent.innerHTML = '<span style="color:#4A6A80;font-style:italic;">Not assigned.</span>';
+    }
+  }
+}
+
+function apCancelMphDuty(){
+  const ds = document.getElementById('ap-edit-date').value;
+  if(!ds){ toast('Pick a date first','err'); return; }
+
+  roster[ds] = roster[ds] || {};
+  delete roster[ds]._mph_primary;
+  delete roster[ds]._mph_manual;
+  roster[ds]._mph_removed = true;
+
+  // Clean up empty entries
+  const meaningful = Object.keys(roster[ds]).filter(k => k !== '_mph_removed' && roster[ds][k]);
+  if(!meaningful.length && !roster[ds]._primary){
+    // Only _mph_removed remains — still save it so autoRoster respects it
+  }
+
+  pauseRealtime(3000);
+  dbSaveRosterDay(ds, roster[ds]);
+  auditLog('Cancelled MPH duty for '+ds, 'roster', 'MPH duty removed by admin');
+  autoRoster();
+  apLoadDayFields();
+  toast('✓ MPH duty cancelled for '+fd(ds));
+}
+
+function apSaveMph(mph){
+  const ds = document.getElementById('ap-edit-date').value;
+  if(!ds){ toast('Pick a date first','err'); return; }
+  if(!mph || mph === '__cancel__') return;
+
+  roster[ds] = roster[ds] || {};
+  roster[ds]._mph_primary = mph;
+  roster[ds]._mph_manual = true;
+  delete roster[ds]._mph_removed;
+
+  const d = new Date(ds+'T12:00');
+  calMo = d.getMonth(); calYr = d.getFullYear();
+  sessionStorage.setItem('jk_calMo', calMo);
+  sessionStorage.setItem('jk_calYr', calYr);
+
+  pauseRealtime(3000);
+  dbSaveRosterDay(ds, roster[ds]);
+  auditLog('MPH override: '+ds, 'roster', 'MPH: '+mph);
+  autoRoster();
+  apLoadDayFields();
+  toast('✓ MPH set to '+mph+' on '+fd(ds));
+}
+
+function apRemoveMph(){
+  apCancelMphDuty();
 }
 
 function apDeleteUser(username){
@@ -2941,7 +3511,7 @@ function apSaveUser(oldUsername){
     if(runtimeUsers[oldUsername]) delete runtimeUsers[oldUsername];
   }
 
-  const savedData = { pw: finalPassword||newPassword, role: newRole, display: newDisplay };
+  const savedData = { pw: finalPassword, role: newRole, display: newDisplay };
   USERS[newUsername] = savedData;
   runtimeUsers[newUsername] = savedData;
 
@@ -3005,7 +3575,8 @@ function renderApUserList(){
             </div>
           </div>
           <div style="display:flex;gap:7px;">
-            <button onclick="apSaveUser('${u}')" style="background:linear-gradient(135deg,#166534,#15803D);color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;">💾 Save</button>
+            <button onclick="apSaveUser('${u}')"
+style="background:linear-gradient(135deg,#166534,#15803D);color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;">💾 Save</button>
             ${!isSelf ? `<button onclick="apDeleteUser('${u}')" style="background:rgba(192,57,43,.15);color:#f88;border:1px solid rgba(192,57,43,.35);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">🗑 Delete</button>` : ''}
             <button onclick="toggleUserEdit('${safeId}')" style="background:transparent;color:var(--dm);border:1px solid var(--db);border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;">Cancel</button>
           </div>
@@ -3038,6 +3609,12 @@ function nav(el){
   if(_pg.classList.contains('ep-only')) _pg.classList.add('ep-visible');
   el.classList.add('active');
   if(el.dataset.page === 'audit') renderAuditLogs();
+  if(el.dataset.page === 'override'){
+    const orDate = document.getElementById('or-edit-date');
+    if(orDate && !orDate.value){ orDate.value = new Date().toISOString().split('T')[0]; }
+    orLoadFields();
+  }
+
   if(el.dataset.page === 'adminpanel' && window.CU && CU.user === 'eshan.punjwani'){
     document.getElementById('ap-month').value = calMo;
     document.getElementById('ap-year').value  = calYr;
@@ -3058,64 +3635,37 @@ function nav(el){
 ═══════════════════════════════════ */
 
 let _realtimeChannels = [];
-let _realtimePaused = false; // prevent echo: pause briefly after WE save
+let _realtimePaused = false;
 
 function startRealtime(){
   if(!sb) return;
-  // Clean up any existing subscriptions
   stopRealtime();
 
-  // ── Volunteers ──
   const volCh = sb.channel('realtime-volunteers')
-    .on('postgres_changes', {event:'*', schema:'public', table:'volunteers'}, payload => {
-      if(_realtimePaused) return;
-      handleVolChange(payload);
-    })
-    .subscribe(status => {
-      if(status === 'SUBSCRIBED') console.log('Realtime: volunteers ✓');
-    });
+    .on('postgres_changes',{event:'*',schema:'public',table:'volunteers'}, p=>{ if(!_realtimePaused) handleVolChange(p); })
+    .subscribe(s=>{ if(s==='SUBSCRIBED') console.log('Realtime: volunteers ✓'); });
 
-  // ── Majalis + Trainings ──
   const mjCh = sb.channel('realtime-majalis')
-    .on('postgres_changes', {event:'*', schema:'public', table:'majalis'}, payload => {
-      if(_realtimePaused) return;
-      handleMajalisChange(payload);
-    })
-    .subscribe(status => {
-      if(status === 'SUBSCRIBED') console.log('Realtime: majalis ✓');
-    });
+    .on('postgres_changes',{event:'*',schema:'public',table:'majalis'}, p=>{ if(!_realtimePaused) handleMajalisChange(p); })
+    .subscribe(s=>{ if(s==='SUBSCRIBED') console.log('Realtime: majalis ✓'); });
 
-  // ── Roster ──
   const roCh = sb.channel('realtime-roster')
-    .on('postgres_changes', {event:'*', schema:'public', table:'roster'}, payload => {
-      if(_realtimePaused) return;
-      handleRosterChange(payload);
-    })
-    .subscribe(status => {
-      if(status === 'SUBSCRIBED') console.log('Realtime: roster ✓');
-    });
+    .on('postgres_changes',{event:'*',schema:'public',table:'roster'}, p=>{ if(!_realtimePaused) handleRosterChange(p); })
+    .subscribe(s=>{ if(s==='SUBSCRIBED') console.log('Realtime: roster ✓'); });
 
-  // ── App Settings (shared month etc.) ──
-  const setCh = sb.channel('realtime-settings')
-    .on('postgres_changes', {event:'*', schema:'public', table:'app_settings'}, payload => {
-      if(_realtimePaused) return;
-      handleSettingChange(payload);
-    })
-    .subscribe(status => {
-      if(status === 'SUBSCRIBED') console.log('Realtime: app_settings ✓');
-    });
-
-  // ── Audit Logs ──
   const auCh = sb.channel('realtime-audit')
-    .on('postgres_changes', {event:'INSERT', schema:'public', table:'audit_logs'}, payload => {
-      if(_realtimePaused) return;
-      handleAuditChange(payload);
-    })
-    .subscribe(status => {
-      if(status === 'SUBSCRIBED') console.log('Realtime: audit_logs ✓');
-    });
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'audit_logs'}, p=>{ if(!_realtimePaused) handleAuditChange(p); })
+    .subscribe(s=>{ if(s==='SUBSCRIBED') console.log('Realtime: audit_logs ✓'); });
 
-  _realtimeChannels = [volCh, mjCh, roCh, auCh, setCh];
+  const setCh = sb.channel('realtime-settings')
+    .on('postgres_changes',{event:'*',schema:'public',table:'app_settings'}, p=>{ if(!_realtimePaused) handleSettingChange(p); })
+    .subscribe(s=>{ if(s==='SUBSCRIBED') console.log('Realtime: app_settings ✓'); });
+
+  const userCh = sb.channel('realtime-users')
+    .on('postgres_changes',{event:'*',schema:'public',table:'app_users'}, p=>{ if(!_realtimePaused) handleUserChange(p); })
+    .subscribe(s=>{ if(s==='SUBSCRIBED') console.log('Realtime: app_users ✓'); });
+
+  _realtimeChannels = [volCh, mjCh, roCh, auCh, setCh, userCh];
   setSyncStatus('ok');
 }
 
@@ -3124,13 +3674,19 @@ function stopRealtime(){
   _realtimeChannels = [];
 }
 
-// Pause realtime echo for ms milliseconds after a local save
-function pauseRealtime(ms=800){
-  _realtimePaused = true;
-  setTimeout(() => { _realtimePaused = false; }, ms);
-}
-
 // ── Handlers ──
+
+function handleUserChange(payload){
+  const {eventType, new:row, old} = payload;
+  if(eventType === 'DELETE'){
+    if(old && old.username) delete USERS[old.username];
+  } else if(row && row.username){
+    USERS[row.username] = {pw:row.pw, role:row.role, display:row.display};
+  }
+  // Re-render user list if admin panel is open
+  const ap = document.getElementById('ap-userlist');
+  if(ap) renderApUserList();
+}
 
 function handleSettingChange(payload){
   if(_realtimePaused) return;
@@ -3203,9 +3759,20 @@ function handleMajalisChange(payload){
 function handleRosterChange(payload){
   const {eventType, new:row, old} = payload;
   if(eventType === 'DELETE'){
-    delete roster[old.date];
+    // Only delete if it wasn't manually overridden locally
+    if(!roster[old.date] || !roster[old.date]._manual){
+      delete roster[old.date];
+    }
   } else {
-    roster[row.date] = row.data || {};
+    const incoming = row.data || {};
+    const existing = roster[row.date];
+    // Don't overwrite a local _manual entry with an older DB version
+    // (can happen if realtime echo fires after a manual save)
+    if(existing && existing._manual && !incoming._manual){
+      // Keep local manual entry — DB hasn't caught up yet
+    } else {
+      roster[row.date] = incoming;
+    }
   }
   renderCal();
   showSyncPulse('📅');
@@ -3242,6 +3809,116 @@ function showSyncPulse(icon){
   _pulseTimer = setTimeout(()=>{ dot.style.background='#00C853'; dot.title='Saved'; }, 1200);
 }
 
+
+
+// ── Override page shims — map or- IDs to the ap- functions ──
+function orLoadFields(){
+  const ds = document.getElementById('or-edit-date').value;
+  if(!ds) return;
+  // Mirror date into ap- field so apLoadDayFields works
+  const apDate = document.getElementById('ap-edit-date');
+  if(apDate) apDate.value = ds;
+  apLoadDayFields();
+  // Now copy populated values back to or- fields
+  _syncOrFields();
+}
+
+function _syncOrFields(){
+  const pairs = [
+    ['ap-edit-primary','or-edit-primary'],
+    ['ap-edit-sup','or-edit-sup'],
+    ['ap-edit-mph','or-edit-mph'],
+    ['ap-mph-current','or-mph-current'],
+    ['ap-edit-notes','or-edit-notes'],
+    ['ap-mj-current','or-mj-current'],
+    ['ap-mj-select','or-mj-select'],
+    ['ap-mj-custom','or-mj-custom'],
+    ['ap-mj-date-display','or-mj-date-display'],
+    ['ap-tr-current','or-tr-current'],
+    ['ap-tr-trainee','or-tr-trainee'],
+    ['ap-tr-trainer','or-tr-trainer'],
+    ['ap-tr-delete-wrap','or-tr-delete-wrap'],
+  ];
+  pairs.forEach(([apId, orId]) => {
+    const apEl = document.getElementById(apId);
+    const orEl = document.getElementById(orId);
+    if(!apEl || !orEl) return;
+    // Copy innerHTML for display divs
+    if(orEl.tagName === 'DIV' || orEl.tagName === 'SPAN'){
+      orEl.innerHTML = apEl.innerHTML;
+      orEl.style.cssText = apEl.style.cssText;
+    } else if(orEl.tagName === 'SELECT'){
+      orEl.innerHTML = apEl.innerHTML;
+      orEl.value = apEl.value;
+    } else {
+      orEl.value = apEl.value;
+    }
+  });
+}
+
+function orSaveDay(){
+  // Copy or- values into ap- fields, then call apSaveDay
+  const ds = document.getElementById('or-edit-date').value;
+  if(!ds){ toast('Select a date first','err'); return; }
+  const apDate = document.getElementById('ap-edit-date');
+  if(apDate) apDate.value = ds;
+  const apPrimary = document.getElementById('ap-edit-primary');
+  const orPrimary = document.getElementById('or-edit-primary');
+  if(apPrimary && orPrimary) apPrimary.value = orPrimary.value;
+  const apSup = document.getElementById('ap-edit-sup');
+  const orSup = document.getElementById('or-edit-sup');
+  if(apSup && orSup) apSup.value = orSup.value;
+  const apMph = document.getElementById('ap-edit-mph');
+  const orMph = document.getElementById('or-edit-mph');
+  if(apMph && orMph) apMph.value = orMph.value;
+  apSaveDay();
+  setTimeout(_syncOrFields, 200);
+}
+
+function orClearDay(){
+  const ds = document.getElementById('or-edit-date').value;
+  if(!ds){ toast('Select a date first','err'); return; }
+  const apDate = document.getElementById('ap-edit-date');
+  if(apDate) apDate.value = ds;
+  apClearDay();
+  setTimeout(_syncOrFields, 200);
+}
+
+function orHandleMphChange(){
+  const orMph = document.getElementById('or-edit-mph');
+  const apMph = document.getElementById('ap-edit-mph');
+  if(orMph && apMph) apMph.value = orMph.value;
+  apHandleMphChange();
+  setTimeout(_syncOrFields, 100);
+}
+
+function orAddMajalis(){ 
+  const orMjSel = document.getElementById('or-mj-select');
+  const apMjSel = document.getElementById('ap-mj-select');
+  const orMjCus = document.getElementById('or-mj-custom');
+  const apMjCus = document.getElementById('ap-mj-custom');
+  if(orMjSel && apMjSel) apMjSel.value = orMjSel.value;
+  if(orMjCus && apMjCus) apMjCus.value = orMjCus.value;
+  const ds = document.getElementById('or-edit-date').value;
+  const apDate = document.getElementById('ap-edit-date');
+  if(apDate) apDate.value = ds;
+  apAddMajalis();
+  setTimeout(_syncOrFields, 200);
+}
+
+function orAddTraining(){
+  const ds = document.getElementById('or-edit-date').value;
+  const apDate = document.getElementById('ap-edit-date');
+  if(apDate) apDate.value = ds;
+  const orTrainee = document.getElementById('or-tr-trainee');
+  const orTrainer = document.getElementById('or-tr-trainer');
+  const apTrainee = document.getElementById('ap-tr-trainee');
+  const apTrainer = document.getElementById('ap-tr-trainer');
+  if(orTrainee && apTrainee) apTrainee.value = orTrainee.value;
+  if(orTrainer && apTrainer) apTrainer.value = orTrainer.value;
+  apAddTraining();
+  setTimeout(_syncOrFields, 200);
+}
 </script>
 </body>
 </html>
