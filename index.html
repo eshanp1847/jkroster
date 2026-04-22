@@ -6,6 +6,7 @@
 <title>JK Roster — Auckland Jamatkhana</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ─── TOKENS ─── */
@@ -1255,12 +1256,37 @@ function esc(s){
 const SB_URL  = 'https://rklvtmxjzugcjznxczxa.supabase.co';
 const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrbHZ0bXhqenVnY2p6bnhjenhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjk3MTMsImV4cCI6MjA4ODYwNTcxM30.RaAtGYahS1lHT7U7VH8wbbaQ1HHYqO8TBBMMtudfkRg';
 let sb = null;
-try {
-  if(SB_URL !== 'YOUR_SUPABASE_URL'){
-    sb = window.supabase.createClient(SB_URL, SB_KEY);
-    console.log('Supabase client initialised ✓');
+
+function initSupabase(){
+  try {
+    const supaLib = window.supabase || window.Supabase;
+    if(supaLib && supaLib.createClient){
+      sb = supaLib.createClient(SB_URL, SB_KEY);
+      console.log('Supabase client initialised ✓');
+      return true;
+    } else {
+      console.warn('Supabase library not ready yet');
+      return false;
+    }
+  } catch(e){
+    console.error('Supabase init failed:', e);
+    return false;
   }
-} catch(e){ console.error('Supabase init failed:', e); }
+}
+
+// Try immediately, then retry after DOM ready if needed
+if(!initSupabase()){
+  document.addEventListener('DOMContentLoaded', () => {
+    if(!sb){
+      // Try loading from fallback CDN
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/@supabase/supabase-js@2';
+      s.onload = () => { initSupabase(); };
+      s.onerror = () => console.error('Both Supabase CDNs failed — offline mode');
+      document.head.appendChild(s);
+    }
+  });
+}
 
 // Show a small sync indicator in the corner
 function setSyncStatus(state){
@@ -1662,6 +1688,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
   });
+
+  // Ensure Supabase is initialised (may not be if CDN was slow)
+  if(!sb) initSupabase();
+  // Give CDN scripts up to 3 seconds to load
+  if(!sb){
+    await new Promise(resolve => {
+      let attempts = 0;
+      const check = setInterval(()=>{
+        attempts++;
+        if(initSupabase() || attempts >= 30){ clearInterval(check); resolve(); }
+      }, 100);
+    });
+  }
+  if(!sb) console.error('Supabase not available — running offline');
 
   // Load users from DB BEFORE showing login — so credentials are always current
   await loadUsersEarly();
