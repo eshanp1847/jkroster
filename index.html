@@ -70,6 +70,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
 .page.active{display:block;animation:fadeIn .25s ease;}
 .page.ep-only{display:none!important;}
 .page.ep-only.ep-visible{display:block!important;animation:fadeIn .25s ease;}
+/* Role-gated nav items — hidden until applySession shows them */
+.nav-admin{display:none;}
+.nav-owner{display:none;}
 .ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:12px;flex-wrap:wrap;}
 .ph h1{font-family:'Barlow',sans-serif;font-size:24px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;}
 .ph p{color:var(--dm);font-size:11px;margin-top:2px;}
@@ -680,12 +683,12 @@ tr:hover td{background:var(--ds2);}
       <div class="nav-sec">Main</div>
       <div class="nav-item active" data-page="dashboard" onclick="nav(this)"><span class="ni">⊞</span> Dashboard</div>
       <div class="nav-item" data-page="calendar" onclick="nav(this)"><span class="ni">📅</span> Monthly Roster</div>
-      <div class="nav-sec ep-only" style="display:none;">Management</div>
-      <div class="nav-item ep-only" data-page="volunteers" onclick="nav(this)" style="display:none;"><span class="ni">👥</span> User Management</div>
-      <div class="nav-item ep-only" data-page="events" onclick="nav(this)" style="display:none;"><span class="ni">🕌</span> Add-ons</div>
-      <div class="nav-item ep-only" data-page="audit" onclick="nav(this)" style="display:none;"><span class="ni">🔍</span> Audit Logs</div>
-      <div class="nav-item ao" data-page="override" onclick="nav(this)"><span class="ni">✏️</span> Manual Override</div>
-      <div class="nav-item ep-only" data-page="adminpanel" onclick="nav(this)" style="display:none;"><span class="ni">⚙️</span> Admin Panel</div>
+      <div class="nav-sec nav-admin">Management</div>
+      <div class="nav-item nav-admin" data-page="override" onclick="nav(this)"><span class="ni">✏️</span> Manual Override</div>
+      <div class="nav-item nav-admin" data-page="volunteers" onclick="nav(this)"><span class="ni">👥</span> User Management</div>
+      <div class="nav-item nav-admin" data-page="events" onclick="nav(this)"><span class="ni">🕌</span> Add-ons</div>
+      <div class="nav-item nav-admin" data-page="audit" onclick="nav(this)"><span class="ni">🔍</span> Audit Logs</div>
+      <div class="nav-item nav-owner" data-page="adminpanel" onclick="nav(this)"><span class="ni">⚙️</span> Admin Panel</div>
     </nav>
     <div class="sb-bot">
       <div class="uchip">
@@ -782,7 +785,7 @@ tr:hover td{background:var(--ds2);}
     </div>
 
     <!-- USER MANAGEMENT -->
-    <div class="page ao" id="page-volunteers">
+    <div class="page admin-page" id="page-volunteers">
       <div class="ph"><div><h1>User Management</h1><p>Volunteer profiles, availability and roles</p></div></div>
       <div class="iv-panel">
         <div class="iv-ph"><span>👥</span> Volunteer Management</div>
@@ -812,7 +815,7 @@ tr:hover td{background:var(--ds2);}
     </div>
 
     <!-- MAJALIS DATES -->
-    <div class="page ao" id="page-events">
+    <div class="page admin-page" id="page-events">
       <div class="ph"><div><h1>Add-ons</h1><p>Schedule and manage upcoming Majalis &amp; Training Days</p></div></div>
 
       <!-- ── MAJALIS PANEL ── -->
@@ -891,7 +894,7 @@ tr:hover td{background:var(--ds2);}
 
 
     <!-- AUDIT LOGS -->
-    <div class="page ao" id="page-audit">
+    <div class="page admin-page" id="page-audit">
       <div class="ph">
         <div><h1>Audit Logs</h1><p>Track all changes made by users</p></div>
         <div class="ha">
@@ -922,7 +925,7 @@ tr:hover td{background:var(--ds2);}
     <!-- ADMIN PANEL — eshan.punjwani only -->
 
     <!-- ── MANUAL OVERRIDE PAGE (all admins) ── -->
-    <div class="page ao" id="page-override">
+    <div class="page admin-page" id="page-override">
       <div class="ph">
         <div><h1>✏️ Manual Override</h1><p>Override roster assignments for specific dates</p></div>
       </div>
@@ -1039,7 +1042,7 @@ tr:hover td{background:var(--ds2);}
       </div>
     </div>
 
-    <div class="page ep-only" id="page-adminpanel" style="display:none;">
+    <div class="page owner-page ep-only" id="page-adminpanel">
       <div class="ph">
         <div><h1>⚙️ Admin Panel</h1><p>System administration — restricted access</p></div>
       </div>
@@ -1562,8 +1565,10 @@ async function loadUsersEarly(){
     if(error || !data || !data.length) return; // keep hardcoded USERS as fallback
     // Merge: DB users override hardcoded, but hardcoded remain as fallback
     data.forEach(r=>{
-      if(r.username && r.pw) USERS[r.username]={pw:r.pw,role:r.role||'volunteer',display:r.display||r.username};
+      if(r.username && r.pw) USERS[r.username]={pw:r.pw,role:(r.role==='owner'||r.role==='admin'||r.role==='volunteer')?r.role:'volunteer',display:r.display||r.username};
     });
+    // eshan.punjwani is always owner regardless of DB value
+    if(USERS['eshan.punjwani']) USERS['eshan.punjwani'].role='owner';
     initRuntimeUsers();
     console.log('Users merged from DB for login:', Object.keys(USERS).length);
   } catch(e){ console.warn('loadUsersEarly failed — using hardcoded credentials:', e.message); }
@@ -1577,8 +1582,10 @@ async function loadUsersFromDB(){
     if(data && data.length){
       // Merge DB users — keep hardcoded as fallback, DB overrides
       data.forEach(r=>{
-        if(r.username && r.pw) USERS[r.username]={pw:r.pw,role:r.role||'volunteer',display:r.display||r.username};
+        if(r.username && r.pw) USERS[r.username]={pw:r.pw,role:(r.role==='owner'||r.role==='admin'||r.role==='volunteer')?r.role:'volunteer',display:r.display||r.username};
       });
+      // eshan.punjwani is always owner
+      if(USERS['eshan.punjwani']) USERS['eshan.punjwani'].role='owner';
     initRuntimeUsers();
     console.log('Users loaded from DB:', Object.keys(USERS).length);
     // Re-render user list if admin panel is currently open
@@ -1638,7 +1645,7 @@ let USERS = {
   'reshnosh.bijani':    { pw: 'AVTL',    role: 'admin', display: 'Reshnosh Bijani'    },
   'hussain.hasnani':    { pw: 'AVATL',   role: 'admin', display: 'Hussain Hasnani'    },
   'arhaan.prasla':      { pw: 'AVTM101', role: 'admin', display: 'Arhaan Prasla'      },
-  'eshan.punjwani':     { pw: 'AVTM307', role: 'admin', display: 'Eshan Punjwani'     },
+  'eshan.punjwani':     { pw: 'AVTM307', role: 'owner', display: 'Eshan Punjwani'     },
   'arshiyaan.charolia': { pw: 'AVTM238', role: 'admin', display: 'Arshiyaan Charolia' },
   'irfan.jalia':        { pw: 'IVD',     role: 'admin', display: 'Irfan Jalia'        },
   'shazad.saleem':      { pw: 'IVDD',    role: 'admin', display: 'Shazad Saleem'      },
@@ -1680,20 +1687,42 @@ function applySession(){
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('unm').textContent = CU.display;
-  document.getElementById('url').textContent  = CU.role === 'admin' ? 'Administrator' : 'Volunteer';
   document.getElementById('uav').textContent  = CU.display[0].toUpperCase();
-  if(CU.role !== 'admin') document.querySelectorAll('.ao').forEach(e => e.style.display = 'none');
-  // Admin panel only for eshan.punjwani
+
+  const role = CU.role; // 'volunteer', 'admin', 'owner'
+  const isOwner   = role === 'owner';
+  const isAdmin   = role === 'admin' || isOwner;
+  const isVolunteer = role === 'volunteer';
+
+  // Role badge in sidebar
+  const roleLabels = { owner: '👑 Owner', admin: 'Administrator', volunteer: 'Volunteer' };
+  const urlEl = document.getElementById('url');
+  urlEl.textContent = roleLabels[role] || role;
+  urlEl.style.color = isOwner ? '#F59E0B' : isAdmin ? '#4FC3F7' : '#94A3B8';
+
+  // ── Show/hide nav items by role ──
+  // nav-admin: visible to admin + owner
+  document.querySelectorAll('.nav-admin').forEach(el => {
+    el.style.display = isAdmin ? (el.classList.contains('nav-item') ? 'flex' : 'block') : 'none';
+  });
+  // nav-owner: visible to owner only
+  document.querySelectorAll('.nav-owner').forEach(el => {
+    el.style.display = isOwner ? (el.classList.contains('nav-item') ? 'flex' : 'block') : 'none';
+  });
+
+  // ── Pages: admin-page accessible to admin+owner ──
+  // Pages don't auto-show — they show when navigated to
+  // But hide ep-only pages for non-owners
   document.querySelectorAll('.ep-only').forEach(e => {
-    const isNavItem = e.classList.contains('nav-item');
-    if(CU.user === 'eshan.punjwani'){
-      if(isNavItem) e.style.display = 'flex';
-      // Pages stay hidden until explicitly navigated to — don't auto-show
-    } else {
+    if(!isOwner){
       e.style.display = 'none';
       e.classList.remove('ep-visible');
     }
   });
+
+  // ── Volunteer mode: read-only ──
+  // Volunteers can see Dashboard and Roster only — everything else hidden
+  // No edit actions available (nav items are already hidden)
 }
 
 // Restore session on refresh
@@ -3616,7 +3645,7 @@ function apSaveUser(oldUsername){
   const newPassword = document.getElementById('ap-edit-pw-'+_sid)?.value.trim()||'';
   // For eshan (isSelf), role select is disabled — preserve existing role
   const _roleEl = document.getElementById('ap-edit-role-'+_sid);
-  const newRole = (_roleEl && !_roleEl.disabled) ? _roleEl.value : (USERS[oldUsername]?.role||'admin');
+  const newRole = (_roleEl && !_roleEl.disabled) ? _roleEl.value : (USERS[oldUsername]?.role||'volunteer');
 
   if(!newDisplay)  { toast('Display name cannot be empty','err'); return; }
   if(!newUsername) { toast('Username cannot be empty','err'); return; }
@@ -3671,7 +3700,7 @@ function renderApUserList(){
           <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,hsl(${hue},55%,28%),hsl(${hue},65%,42%));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;">${(d.display||u)[0].toUpperCase()}</div>
           <div style="flex:1;min-width:0;">
             <div style="font-size:12px;font-weight:700;color:#E8F4FD;">${esc(d.display)}</div>
-            <div style="font-size:10px;color:var(--dm);font-family:monospace;">${esc(u)} &nbsp;·&nbsp; <span style="color:${d.role==='admin'?'#4FC3F7':'#94A3B8'};font-weight:600;">${d.role}</span></div>
+            <div style="font-size:10px;color:var(--dm);font-family:monospace;">${esc(u)} &nbsp;·&nbsp; <span style="color:${d.role==='owner'?'#F59E0B':d.role==='admin'?'#4FC3F7':'#94A3B8'};font-weight:600;">${d.role}</span></div>
           </div>
           <div style="font-size:10px;color:#3A5878;font-family:monospace;background:rgba(0,0,0,0.25);padding:2px 8px;border-radius:4px;">${esc(d.pw)}</div>
           <span style="color:var(--dm);font-size:10px;margin-left:4px;">▼</span>
@@ -3694,6 +3723,7 @@ function renderApUserList(){
             <div>
               <div style="font-size:9px;font-weight:700;color:var(--dm);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Role</div>
               <select id="ap-edit-role-${safeId}" class="ws" style="background:#0D2040;color:#E8F4FD;font-size:12px;padding:6px 9px;" ${isSelf?'disabled':''}>
+                <option value="owner" ${d.role==='owner'?'selected':''}>Owner</option>
                 <option value="admin" ${d.role==='admin'?'selected':''}>Admin</option>
                 <option value="volunteer" ${d.role==='volunteer'?'selected':''}>Volunteer</option>
               </select>
@@ -3723,8 +3753,15 @@ function toggleUserEdit(safeId){
 // Nav defined below — handles all page switching
 function nav(el){
   if(!el) return;
-  // Block admin panel access for non-eshan users
-  if(el.dataset.page==='adminpanel' && (!window.CU || CU.user!=='eshan.punjwani')) return;
+  if(!window.CU) return;
+  const _role = CU.role;
+  const _isOwner = _role === 'owner';
+  const _isAdmin = _role === 'admin' || _isOwner;
+  // Enforce page access
+  const _adminPages   = ['override','volunteers','events','audit'];
+  const _ownerPages   = ['adminpanel'];
+  if(_ownerPages.includes(el.dataset.page) && !_isOwner) return;
+  if(_adminPages.includes(el.dataset.page) && !_isAdmin) return;
   document.querySelectorAll('.page').forEach(p=>{ p.classList.remove('active'); p.classList.remove('ep-visible'); });
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   const _pg=document.getElementById('page-'+el.dataset.page);
