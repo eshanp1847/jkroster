@@ -927,59 +927,72 @@ tr:hover td{background:var(--ds2);}
         <div><h1>✏️ Manual Override</h1><p>Override roster assignments for specific dates</p></div>
       </div>
       <div style="padding:20px 24px;">
-<div class="iv-panel" style="margin-bottom:20px;">
-        <div class="iv-ph" style="background:linear-gradient(135deg,#3B1A6B,#6D28D9);">
-          <span>✏️</span> Edit Specific Day
-        </div>
-        <div class="iv-pb">
-
-          <!-- Date picker -->
-          <div style="margin-bottom:14px;">
-            <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Date</div>
-            <input type="date" id="or-edit-date" class="wi" style="max-width:220px;border-color:rgba(109,40,217,0.4);" onchange="orLoadFields()">
-            <div id="or-edit-notes" style="font-size:11px;color:#6D4BA0;margin-top:6px;font-style:italic;min-height:16px;"></div>
+        <div class="iv-panel" style="margin-bottom:20px;">
+          <div class="iv-ph" style="background:linear-gradient(135deg,#3B1A6B,#6D28D9);">
+            <span>✏️</span> Edit Specific Day
           </div>
+          <div class="iv-pb">
 
-          <!-- ── ROSTER SECTION ── -->
-          <div class="add-form" style="background:linear-gradient(160deg,#0D0618,#1A0A38);border:1px solid rgba(109,40,217,0.35);margin-bottom:12px;">
-            <div style="font-size:10px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">📅 Roster Override</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-              <div>
-                <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">JK Volunteer</div>
+            <!-- Date picker -->
+            <div style="margin-bottom:16px;">
+              <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Date</div>
+              <input type="date" id="or-edit-date" class="wi" style="max-width:220px;border-color:rgba(109,40,217,0.4);" onchange="orLoadFields()">
+              <div id="or-edit-notes" style="font-size:11px;color:#6D4BA0;margin-top:6px;font-style:italic;min-height:16px;"></div>
+            </div>
+
+            <!-- ── ROSTER OVERRIDE ── -->
+            <div class="add-form" style="background:linear-gradient(160deg,#0D0618,#1A0A38);border:1px solid rgba(109,40,217,0.35);margin-bottom:12px;">
+              <div style="font-size:10px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;">📅 Roster Override</div>
+
+              <!-- DUTIES dropdown -->
+              <div style="margin-bottom:14px;">
+                <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Duties</div>
+                <select id="or-duty-mode" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(109,40,217,0.4);" onchange="orToggleDutyMode()">
+                  <option value="jk">Jamatkhana Duty Only</option>
+                  <option value="jk_mph">JK and MPH Duty</option>
+                </select>
+              </div>
+
+              <!-- VOLUNTEER DUTY -->
+              <div style="margin-bottom:14px;">
+                <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Volunteer Duty</div>
                 <select id="or-edit-primary" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(109,40,217,0.4);">
-                  <option value="">— Auto-assigned —</option>
-                </select>
-              </div>
-              <div>
-                <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Supervisor (SUP tag)</div>
-                <select id="or-edit-sup" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(109,40,217,0.4);">
-                  <option value="">— None —</option>
-                </select>
-              </div>
-              <div id="or-edit-mph-wrap" style="grid-column:1/-1;">
-                <div style="font-size:9px;font-weight:700;color:#F59E0B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">MPH Congregation</div>
-                <div id="or-mph-current" style="font-size:11px;color:#4A6A80;font-style:italic;margin-bottom:7px;"></div>
-                <select id="or-edit-mph" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(245,158,11,0.4);width:100%;" onchange="orHandleMphChange()">
                   <option value="">— Select volunteer —</option>
-                  <option value="__cancel__" style="color:#f88;font-weight:700;">✕ Cancel MPH Duty for this date</option>
                 </select>
               </div>
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn btn-bl" style="background:linear-gradient(135deg,#4C1D95,#6D28D9);" onclick="orSaveDay()">💾 Save Roster</button>
-              <button class="btn btn-ol" onclick="orClearDay()">✕ Clear Override</button>
-            </div>
-          </div>
 
-          <!-- ── MAJALIS SECTION ── -->
-          <div class="add-form" style="background:linear-gradient(160deg,#060F1E,#0C2040);border:1px solid rgba(79,195,247,0.25);margin-bottom:12px;">
-            <div style="font-size:10px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">🕌 Majalis for this Day</div>
-            <div id="or-mj-current" style="font-size:11px;color:#4A6A80;margin-bottom:10px;font-style:italic;">No majalis on this day.</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;">
-              <div>
-                <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Majalis Name</div>
-                <select id="or-mj-select" class="ws" style="background:#071628;color:#E8F4FD;border:1px solid rgba(79,195,247,0.3);" onchange="handleApMjSelect()">
-                  <option value="">— Select type —</option>
+              <!-- SUPERVISOR DUTY -->
+              <div style="margin-bottom:14px;">
+                <div style="font-size:9px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Supervisor Duty</div>
+                <select id="or-edit-sup" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(109,40,217,0.4);">
+                  <option value="">No Supervisor</option>
+                </select>
+              </div>
+
+              <!-- MPH FIELDS — only shown when JK and MPH Duty selected -->
+              <div id="or-mph-fields" style="display:none;">
+                <!-- MPH Duty 1 -->
+                <div style="margin-bottom:14px;">
+                  <div style="font-size:9px;font-weight:700;color:#F59E0B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">MPH Duty 1 <span style="color:#6D4BA0;font-weight:400;">(required)</span></div>
+                  <select id="or-edit-mph" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(245,158,11,0.4);">
+                    <option value="">— Select volunteer —</option>
+                  </select>
+                </div>
+                <!-- MPH Duty 2 -->
+                <div style="margin-bottom:14px;">
+                  <div style="font-size:9px;font-weight:700;color:#F59E0B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">MPH Duty 2 <span style="color:#6D4BA0;font-weight:400;">(optional)</span></div>
+                  <select id="or-edit-mph2" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(245,158,11,0.25);">
+                    <option value="">— None —</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- MAJALIS for this day -->
+              <div style="margin-bottom:14px;">
+                <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Majalis / Event</div>
+                <select id="or-majalis-sel" class="ws" style="background:#0D0820;color:#E8F4FD;border:1px solid rgba(79,195,247,0.3);" onchange="orMajalisSelChange()">
+                  <option value="">— No change —</option>
+                  <option value="__none__" style="color:#f88;">✕ No Majalis / Event</option>
                   <option value="Chandraat">Chandraat</option>
                   <option value="Student">Student</option>
                   <option value="Paanch Baar Saal">Paanch Baar Saal</option>
@@ -990,38 +1003,39 @@ tr:hover td{background:var(--ds2);}
                   <option value="Bait-ul Khayal (K)">Bait-ul Khayal (K)</option>
                   <option value="__custom__">✏️ Custom…</option>
                 </select>
-                <input type="text" id="or-mj-custom" placeholder="Custom name…" class="wi" style="display:none;margin-top:5px;border-color:rgba(79,195,247,0.3);">
+                <input type="text" id="or-majalis-custom" placeholder="Custom majalis name…" class="wi" style="display:none;margin-top:6px;border-color:rgba(79,195,247,0.3);">
+                <div id="or-majalis-current" style="font-size:11px;color:#4A8AAE;margin-top:6px;font-style:italic;"></div>
               </div>
-              <div>
-                <div style="font-size:9px;font-weight:700;color:#4FC3F7;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Date (auto-filled)</div>
-                <input type="text" id="or-mj-date-display" class="wi" style="border-color:rgba(79,195,247,0.2);color:#4A6A80;" readonly placeholder="Pick a date above first">
-              </div>
-              <button onclick="orAddMajalis()" style="height:38px;padding:0 14px;background:linear-gradient(135deg,#0B3A6B,#1565C0);color:#fff;border:none;border-radius:var(--r);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;">+ Add</button>
-            </div>
-          </div>
 
-          <!-- ── TRAINING SECTION ── -->
-          <div class="add-form" style="background:linear-gradient(160deg,#0E100A,#1C1505);border:1px solid rgba(200,150,40,0.25);">
-            <div style="font-size:10px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">🎓 Training for this Day</div>
-            <div id="or-tr-current" style="font-size:11px;color:#4A6A80;margin-bottom:10px;font-style:italic;">No training on this day.</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;">
-              <div>
-                <div style="font-size:9px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Trainee</div>
-                <input type="text" id="or-tr-trainee" placeholder="Trainee name…" class="wi" style="border-color:rgba(200,150,40,0.3);">
+              <!-- Buttons -->
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+                <button class="btn btn-bl" style="background:linear-gradient(135deg,#4C1D95,#6D28D9);" onclick="orSaveDay()">💾 Save Roster</button>
+                <button class="btn btn-ol" onclick="orClearDay()">✕ Clear Override</button>
               </div>
-              <div>
-                <div style="font-size:9px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Trainer</div>
-                <input type="text" id="or-tr-trainer" placeholder="Trainer name…" class="wi" style="border-color:rgba(200,150,40,0.3);">
-              </div>
-              <button onclick="orAddTraining()" style="height:38px;padding:0 14px;background:linear-gradient(135deg,#92400E,#B45309);color:#FCD34D;border:none;border-radius:var(--r);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;">+ Add</button>
             </div>
-            <div id="or-tr-delete-wrap" style="margin-top:8px;display:none;">
-              <button onclick="apRemoveTraining()" style="background:rgba(192,57,43,.12);color:#f88;border:1px solid rgba(192,57,43,.3);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;">🗑 Remove Training from this Day</button>
-            </div>
-          </div>
 
+            <!-- ── TRAINING SECTION (unchanged) ── -->
+            <div class="add-form" style="background:linear-gradient(160deg,#0E100A,#1C1505);border:1px solid rgba(200,150,40,0.25);">
+              <div style="font-size:10px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">🎓 Training for this Day</div>
+              <div id="or-tr-current" style="font-size:11px;color:#4A6A80;margin-bottom:10px;font-style:italic;">No training on this day.</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;">
+                <div>
+                  <div style="font-size:9px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Trainee</div>
+                  <input type="text" id="or-tr-trainee" placeholder="Trainee name…" class="wi" style="border-color:rgba(200,150,40,0.3);">
+                </div>
+                <div>
+                  <div style="font-size:9px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Trainer</div>
+                  <input type="text" id="or-tr-trainer" placeholder="Trainer name…" class="wi" style="border-color:rgba(200,150,40,0.3);">
+                </div>
+                <button onclick="orAddTraining()" style="height:38px;padding:0 14px;background:linear-gradient(135deg,#92400E,#B45309);color:#FCD34D;border:none;border-radius:var(--r);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;">+ Add</button>
+              </div>
+              <div id="or-tr-delete-wrap" style="margin-top:8px;display:none;">
+                <button onclick="apRemoveTraining('or-')" style="background:rgba(192,57,43,.12);color:#f88;border:1px solid rgba(192,57,43,.3);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;">🗑 Remove Training from this Day</button>
+              </div>
+            </div>
+
+          </div>
         </div>
-      </div>
       </div>
     </div>
 
@@ -1920,12 +1934,25 @@ function renderCal(){
     // ── MPH block (Fridays only) ──
     if(isFri && !ro._mph_removed){
       const mphP=ro._mph_primary||null;
+      const mphP2=ro._mph_primary2||null;
       h+=`<hr class="duty-sep">
         <div class="duty">
           <div class="duty-lbl" style="color:#A06010;border-left-color:#7A4A00;">MPH</div>
           ${mphP
-            ?`<div class="duty-name" style="color:#E8C060;">${esc(mphP)}</div>`
+            ?`<div class="duty-name" style="color:#E8C060;">${esc(mphP)}</div>${mphP2?`<div class="duty-name" style="color:#C8A040;font-size:10px;">${esc(mphP2)}</div>`:''}`
             :`<div class="duty-unassigned">—</div>`}
+        </div>`;
+    }
+
+    // Non-Friday MPH (manually set via override)
+    if(!isFri && ro._mph_primary && !ro._mph_removed){
+      const mphP=ro._mph_primary;
+      const mphP2=ro._mph_primary2||null;
+      h+=`<hr class="duty-sep">
+        <div class="duty">
+          <div class="duty-lbl" style="color:#A06010;border-left-color:#7A4A00;">MPH</div>
+          <div class="duty-name" style="color:#E8C060;">${esc(mphP)}</div>
+          ${mphP2?`<div class="duty-name" style="color:#C8A040;font-size:10px;">${esc(mphP2)}</div>`:''}
         </div>`;
     }
 
@@ -3910,45 +3937,182 @@ function showSyncPulse(icon){
 
 
 // ── Override page shims — map or- IDs to the ap- functions ──
-function orLoadFields(){
-  apLoadDayFields('or-');
+function orToggleDutyMode(){
+  const mode = document.getElementById('or-duty-mode').value;
+  const fields = document.getElementById('or-mph-fields');
+  if(fields) fields.style.display = (mode === 'jk_mph') ? 'block' : 'none';
 }
 
-function _syncOrFields(){
-  const pairs = [
-    ['ap-edit-primary','or-edit-primary'],
-    ['ap-edit-sup','or-edit-sup'],
-    ['ap-edit-mph','or-edit-mph'],
-    ['ap-mph-current','or-mph-current'],
-    ['ap-edit-notes','or-edit-notes'],
-    ['ap-mj-current','or-mj-current'],
-    ['ap-mj-select','or-mj-select'],
-    ['ap-mj-custom','or-mj-custom'],
-    ['ap-mj-date-display','or-mj-date-display'],
-    ['ap-tr-current','or-tr-current'],
-    ['ap-tr-trainee','or-tr-trainee'],
-    ['ap-tr-trainer','or-tr-trainer'],
-    ['ap-tr-delete-wrap','or-tr-delete-wrap'],
-  ];
-  pairs.forEach(([apId, orId]) => {
-    const apEl = document.getElementById(apId);
-    const orEl = document.getElementById(orId);
-    if(!apEl || !orEl) return;
-    // Copy innerHTML for display divs
-    if(orEl.tagName === 'DIV' || orEl.tagName === 'SPAN'){
-      orEl.innerHTML = apEl.innerHTML;
-      orEl.style.cssText = apEl.style.cssText;
-    } else if(orEl.tagName === 'SELECT'){
-      orEl.innerHTML = apEl.innerHTML;
-      orEl.value = apEl.value;
-    } else {
-      orEl.value = apEl.value;
-    }
-  });
+function orMajalisSelChange(){
+  const sel = document.getElementById('or-majalis-sel');
+  const custom = document.getElementById('or-majalis-custom');
+  if(!sel || !custom) return;
+  custom.style.display = sel.value === '__custom__' ? 'block' : 'none';
+}
+
+function orLoadFields(){
+  const ds = document.getElementById('or-edit-date').value;
+  if(!ds) return;
+
+  const ro = roster[ds] || {};
+  const active = vols.filter(v => v.status === 'active');
+
+  // Notes line
+  const notesEl = document.getElementById('or-edit-notes');
+  if(notesEl){
+    const dow = new Date(ds+'T12:00').getDay();
+    const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const mj = majalisEvs.find(e => e.date === ds);
+    const tr = trainings.find(e => e.date === ds);
+    notesEl.textContent = dayNames[dow] + (mj ? ' · ' + mj.name : '') + (tr ? ' · Training Day' : '');
+  }
+
+  // Duty mode
+  const dutyMode = document.getElementById('or-duty-mode');
+  const hasManualMph = ro._mph_primary && !ro._mph_removed;
+  if(dutyMode){
+    dutyMode.value = (hasManualMph || ro._mph_manual) ? 'jk_mph' : 'jk';
+    orToggleDutyMode();
+  }
+
+  // Volunteer Duty dropdown
+  const primarySel = document.getElementById('or-edit-primary');
+  if(primarySel){
+    primarySel.innerHTML = '<option value="">— Auto-assigned —</option>' +
+      active.map(v => `<option value="${esc(v.name)}" ${ro._primary===v.name?'selected':''}>${esc(v.name)}</option>`).join('');
+  }
+
+  // Supervisor dropdown — all supervisors + No Supervisor
+  const supSel = document.getElementById('or-edit-sup');
+  if(supSel){
+    const sups = active.filter(v => (v.roles||[]).includes('Supervisor') || v.type==='Supervisor');
+    supSel.innerHTML = '<option value="">No Supervisor</option>' +
+      sups.map(v => `<option value="${esc(v.name)}" ${ro._sup===v.name?'selected':''}>${esc(v.name)}</option>`).join('');
+  }
+
+  // MPH Duty 1
+  const mph1Sel = document.getElementById('or-edit-mph');
+  if(mph1Sel){
+    mph1Sel.innerHTML = '<option value="">— Select volunteer —</option>' +
+      active.map(v => `<option value="${esc(v.name)}" ${ro._mph_primary===v.name?'selected':''}>${esc(v.name)}</option>`).join('');
+  }
+
+  // MPH Duty 2
+  const mph2Sel = document.getElementById('or-edit-mph2');
+  if(mph2Sel){
+    mph2Sel.innerHTML = '<option value="">— None —</option>' +
+      active.map(v => `<option value="${esc(v.name)}" ${ro._mph_primary2===v.name?'selected':''}>${esc(v.name)}</option>`).join('');
+  }
+
+  // Majalis dropdown — show current, pre-select it
+  const mjSel = document.getElementById('or-majalis-sel');
+  const mjCurrent = document.getElementById('or-majalis-current');
+  const mj = majalisEvs.find(e => e.date === ds);
+  if(mjSel) mjSel.value = '';
+  if(mjCurrent){
+    if(mj) mjCurrent.innerHTML = `<span style="color:#90CAF9;">Current: <b>${esc(mj.name)}</b></span>`;
+    else mjCurrent.textContent = 'No majalis on this day.';
+  }
+
+  // Training section
+  const tr = trainings.find(e => e.date === ds);
+  const trCurrent = document.getElementById('or-tr-current');
+  const trDelWrap = document.getElementById('or-tr-delete-wrap');
+  if(trCurrent) trCurrent.innerHTML = tr
+    ? `<span style="color:#FCD34D;">Trainer: <b>${esc(tr.trainer)}</b> · Trainee: <b>${esc(tr.trainee)}</b></span>`
+    : 'No training on this day.';
+  if(trDelWrap) trDelWrap.style.display = tr ? 'block' : 'none';
 }
 
 function orSaveDay(){
-  apSaveDayWithPrefix('or-');
+  const ds = document.getElementById('or-edit-date').value;
+  if(!ds){ toast('Select a date first','err'); return; }
+
+  const primary = document.getElementById('or-edit-primary').value;
+  if(!primary){ toast('Select a volunteer for JK Duty','err'); return; }
+
+  const sup      = document.getElementById('or-edit-sup').value;
+  const dutyMode = document.getElementById('or-duty-mode').value;
+  const mph1     = dutyMode === 'jk_mph' ? document.getElementById('or-edit-mph').value : '';
+  const mph2     = dutyMode === 'jk_mph' ? document.getElementById('or-edit-mph2').value : '';
+
+  if(dutyMode === 'jk_mph' && !mph1){ toast('MPH Duty 1 must have a volunteer selected','err'); return; }
+
+  // Build roster entry
+  const entry = {
+    _primary:  primary,
+    _sup:      sup || '',
+    _manual:   true,
+    _auto:     false,
+  };
+
+  if(dutyMode === 'jk_mph'){
+    entry._mph_primary  = mph1;
+    entry._mph_primary2 = mph2 || '';
+    entry._mph_manual   = true;
+    delete entry._mph_removed;
+  } else {
+    // JK Only — explicitly remove MPH
+    entry._mph_removed  = true;
+    entry._mph_manual   = true;
+    delete entry._mph_primary;
+    delete entry._mph_primary2;
+  }
+
+  // Handle majalis change
+  const mjVal    = document.getElementById('or-majalis-sel').value;
+  const mjCustom = document.getElementById('or-majalis-custom').value.trim();
+  if(mjVal === '__none__'){
+    // Remove any existing majalis for this date
+    const existing = majalisEvs.find(e => e.date === ds);
+    if(existing){
+      majalisEvs = majalisEvs.filter(e => e.date !== ds);
+      dbDeleteMajalis(existing.id);
+      auditLog('Removed majalis from '+ds, 'majalis', 'Via Manual Override');
+    }
+  } else if(mjVal && mjVal !== ''){
+    const name = mjVal === '__custom__' ? mjCustom : mjVal;
+    if(!name){ toast('Enter a custom majalis name','err'); return; }
+    // Remove existing then add new
+    const existing = majalisEvs.find(e => e.date === ds);
+    if(existing){
+      majalisEvs = majalisEvs.filter(e => e.date !== ds);
+      dbDeleteMajalis(existing.id);
+    }
+    const newMj = {id: Date.now()+Math.floor(Math.random()*9000), name, type:'Majalis', date:ds, time:'', category:''};
+    majalisEvs.push(newMj);
+    dbSaveMajalis(newMj);
+    auditLog('Set majalis for '+ds+' to '+name, 'majalis', 'Via Manual Override');
+    // Auto-add PBS for Chandraat
+    if(name.toLowerCase().includes('chandraat')){
+      const pbsD = new Date(ds+'T12:00'); pbsD.setDate(pbsD.getDate()+8);
+      const pbsDate = pbsD.toISOString().split('T')[0];
+      if(!majalisEvs.find(e => e.date===pbsDate && e.name==='Paanch Baar Saal')){
+        const pbsMj = {id:Date.now()+1, name:'Paanch Baar Saal', type:'Majalis', date:pbsDate, time:'', category:''};
+        majalisEvs.push(pbsMj); dbSaveMajalis(pbsMj);
+        auditLog('Auto-added PBS 8 days after Chandraat', 'majalis', pbsDate);
+      }
+    }
+  }
+
+  // Navigate to correct month
+  const dateObj = new Date(ds+'T12:00');
+  calMo = dateObj.getMonth(); calYr = dateObj.getFullYear();
+  sessionStorage.setItem('jk_calMo', calMo);
+  sessionStorage.setItem('jk_calYr', calYr);
+
+  roster[ds] = entry;
+  pauseRealtime(5000);
+  dbSaveRosterDay(ds, entry);
+
+  auditLog('Manual override: '+ds, 'roster',
+    'JK: '+primary + (sup?' SUP: '+sup:'') +
+    (dutyMode==='jk_mph' ? ' MPH1: '+mph1+(mph2?' MPH2: '+mph2:'') : ' MPH: cancelled'));
+
+  autoRoster();
+  renderAll();
+  orLoadFields();
+  toast('✓ Override saved for '+fd(ds));
 }
 
 function orClearDay(){
@@ -3959,30 +4123,8 @@ function orClearDay(){
   dbSaveRosterDay(ds, null);
   auditLog('Cleared override for '+ds, 'roster', 'Reverted to auto-roster');
   autoRoster();
-  apLoadDayFields('or-');
+  orLoadFields();
   toast('Override cleared — '+fd(ds)+' is back to auto');
-}
-
-function orHandleMphChange(){
-  // Just update status preview in the or- page
-  const val = document.getElementById('or-edit-mph') ? document.getElementById('or-edit-mph').value : '';
-  const mphCurrent = document.getElementById('or-mph-current');
-  if(!mphCurrent) return;
-  if(val === '__cancel__'){
-    mphCurrent.innerHTML = '<span style="color:#f88;font-weight:600;">✕ Will cancel MPH duty — click Save Roster to confirm</span>';
-  } else if(val){
-    mphCurrent.innerHTML = '<span style="color:#FCD34D;font-weight:600;">Will assign: '+val+' — click Save Roster to confirm</span>';
-  } else {
-    const ds = document.getElementById('or-edit-date') ? document.getElementById('or-edit-date').value : '';
-    const ro = roster[ds]||{};
-    if(ro._mph_removed){
-      mphCurrent.innerHTML = '<span style="color:#f88;font-weight:600;">✕ MPH duty cancelled for this day</span>';
-    } else if(ro._mph_primary){
-      mphCurrent.innerHTML = '<span style="color:#FCD34D;font-weight:600;">Currently: '+ro._mph_primary+'</span>';
-    } else {
-      mphCurrent.innerHTML = '<span style="color:#4A6A80;font-style:italic;">Not assigned.</span>';
-    }
-  }
 }
 
 function orAddMajalis(){
@@ -3992,6 +4134,11 @@ function orAddMajalis(){
 function orAddTraining(){
   apAddTrainingWithPrefix('or-');
 }
+
+// Legacy shims no longer needed but kept for safety
+function orHandleMphChange(){}
+function _syncOrFields(){}
+
 </script>
 </body>
 </html>
