@@ -189,8 +189,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
 }
 .cell:last-child,.cell:nth-child(7n){border-right:none;}
 .cell:hover{background:#091828;}
-.cell.other{background:#040B18;pointer-events:all;cursor:pointer;}
-.cell.other .cell-inner{opacity:.55;}
+.cell.other{background:#060F1E;pointer-events:all;cursor:pointer;}
+.cell.other .cell-inner{opacity:1;}
+.cell.other .dn{color:#3E6A88;}
+.cell.other:hover{background:#091828;}
 
 /* Majalis — subtle ruby tint */
 .cell.ev-jk{
@@ -240,7 +242,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
 }
 .cell:hover .dn{color:#5A90B8;}
 .cell.today .dn{color:#4FC3F7;}
-.cell.other .dn{color:#18293A;}
+
 .cell.ev-jk .dn{color:#A05565;}
 .cell.ev-training .dn{color:#8A7030;}
 
@@ -250,8 +252,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
   font-family:'DM Sans',sans-serif;
   font-size:7px;font-weight:700;
   text-transform:uppercase;letter-spacing:.1em;
-  color:#4A7A90;
-  border-left:2px solid #2A5A70;
+  color:#6A9AB0;
+  border-left:2px solid #3A6A80;
   padding-left:5px;
   margin-bottom:4px;line-height:1;
 }
@@ -268,7 +270,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--dp);color:var(--dt);min-h
 .duty-unassigned{
   font-family:'DM Sans',sans-serif;
   font-size:10px;font-weight:500;font-style:italic;
-  color:#3A5A70;line-height:1.2;
+  color:#5A7A90;line-height:1.2;
 }
 .duty-sep{
   border:none;border-top:1px solid rgba(79,195,247,0.1);
@@ -677,10 +679,10 @@ tr:hover td{background:var(--ds2);}
       <div class="nav-sec">Main</div>
       <div class="nav-item active" data-page="dashboard" onclick="nav(this)"><span class="ni">⊞</span> Dashboard</div>
       <div class="nav-item" data-page="calendar" onclick="nav(this)"><span class="ni">📅</span> Monthly Roster</div>
-      <div class="nav-sec ao">Management</div>
-      <div class="nav-item ao" data-page="volunteers" onclick="nav(this)"><span class="ni">👥</span> User Management</div>
-      <div class="nav-item ao" data-page="events" onclick="nav(this)"><span class="ni">🕌</span> Add-ons</div>
-      <div class="nav-item ao" data-page="audit" onclick="nav(this)"><span class="ni">🔍</span> Audit Logs</div>
+      <div class="nav-sec ep-only" style="display:none;">Management</div>
+      <div class="nav-item ep-only" data-page="volunteers" onclick="nav(this)" style="display:none;"><span class="ni">👥</span> User Management</div>
+      <div class="nav-item ep-only" data-page="events" onclick="nav(this)" style="display:none;"><span class="ni">🕌</span> Add-ons</div>
+      <div class="nav-item ep-only" data-page="audit" onclick="nav(this)" style="display:none;"><span class="ni">🔍</span> Audit Logs</div>
       <div class="nav-item ao" data-page="override" onclick="nav(this)"><span class="ni">✏️</span> Manual Override</div>
       <div class="nav-item ep-only" data-page="adminpanel" onclick="nav(this)" style="display:none;"><span class="ni">⚙️</span> Admin Panel</div>
     </nav>
@@ -2579,12 +2581,12 @@ async function downloadRosterPNG(){
       const isTraining = cell.classList.contains('ev-training');
       const isToday = cell.classList.contains('today');
 
-      // ── Cell background ──
+      // ── Cell background — other cells get same style, slightly muted ──
       let cellBg = '#FFFFFF';
       let cellBorder = 'rgba(21,101,192,0.18)';
       if(isMajalis){ cellBg='#FFF5F7'; cellBorder='rgba(185,28,100,0.3)'; }
       else if(isTraining){ cellBg='#FFFBF0'; cellBorder='rgba(180,130,40,0.3)'; }
-      else if(isOther){ cellBg='#F5F8FF'; }
+      else if(isOther){ cellBg='#FFFFFF'; cellBorder='rgba(21,101,192,0.18)'; }
 
       clone.style.cssText = `
         background:${cellBg};
@@ -2595,9 +2597,14 @@ async function downloadRosterPNG(){
         position:relative;
         box-sizing:border-box;
         overflow:hidden;
-        opacity:${isOther?'0.25':'1'};
+        opacity:1;
         ${isToday?'box-shadow:inset 0 0 0 3px rgba(21,101,192,0.7);background:#EEF6FF !important;':''}
       `;
+
+      // Remove the opacity from cell-inner that comes from .cell.other CSS
+      clone.querySelectorAll('.cell-inner').forEach(el => {
+        el.style.opacity = '1';
+      });
 
       // ── Day number ──
       clone.querySelectorAll('.dn').forEach(el => {
